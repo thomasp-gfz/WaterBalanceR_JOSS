@@ -1,0 +1,105 @@
+#' Downloads and processes reference ET data from your Arable user account
+#' @param user_name string: "user_name"
+#' @param pwd DOY string: "password"
+#' @param start_date Start date of download (string: "YYYY-MM-DD")
+#' @param end_date End date of download (string: "YYYY-MM-DD")
+#' @param shape_site Path to shapefile containing your AOI (string).
+#' @return chart containing reference evapotranspiration for every DOY during given timespan
+#' @export
+
+DownloadET0fromArable=function(user_name=NA,
+                        pwd=NA,
+                        start_date=NA,
+                        end_date=NA,
+                        shape_site=NA){
+
+  #request devices
+  devices=httr::GET("https://api.arable.cloud/api/v2/devices",
+                    httr::authenticate(
+                      user=user_name,
+                      password=pwd,
+                      type="basic"
+                    ))
+
+  ### get devices names ----
+  devices=as.data.frame(jsonlite::fromJSON(httr::content(devices,as="text",encoding="UTF-8")))
+  devices$items.name
+
+  ### request daily Arable data ----
+  daily_Arable_list=list(NA)
+  daily_Arable_list_ET0=list(NA)
+    for (i in 1:length(devices$items.name)){
+      daily_data=httr::GET(paste("https://api.arable.cloud/api/v2/data/daily?device=",devices$items.name[i],"&start_time=",start_date,"&end_time=",end_date,"&limit=10000&temp=C&order=asc&pres=kp&ratio=dec&size=mm&speed=mps&vol=l&volumetric_soil_moisture_unit=millimeter_per_meter",sep=""),
+                           httr::authenticate(
+                             user=user_name,
+                             password=pwd,
+                             type="basic"
+                           ))
+
+      daily_Arable_list[[i]]=as.data.frame(jsonlite::fromJSON(httr::content(daily_data,as="text",encoding="UTF-8")))
+      daily_Arable_list[[i]]=daily_Arable_list[[i]][,order(names(daily_Arable_list[[i]]))]
+      daily_Arable_list_ET0[[i]]=as.data.frame(cbind(daily_Arable_list[[i]]$et,daily_Arable_list[[i]]$lat,daily_Arable_list[[i]]$long,daily_Arable_list[[i]]$time))
+        if(nrow(daily_Arable_list_ET0[[i]])>0){
+        colnames(daily_Arable_list_ET0[[i]])=c("ET0","lat","lon","date")
+        }
+    }
+  names(daily_Arable_list)=devices$items.name
+  names(daily_Arable_list_ET0)=devices$items.name
+
+
+### set up list for every date containing data frame with ET0, date and device, that is inside the shapefile
+
+  diff_date=as.Date(end_date)-as.Date(start_date)
+  intersec_points_buff=vector(mode='list', length=as.numeric(diff_date)+1)#create list with
+
+  for(i in 1:length(intersec_points_buff)){
+    names(intersec_points_buff)[i]=as.character(as.Date(start_date)+i-1)
+    intersec_points_buff[[i]]=as.data.frame(matrix(NA,length(devices$items.name),3))
+    colnames(intersec_points_buff[[i]])=c("ET0","date","device")
+  }
+
+  for (j in 1:length(devices$items.name)){
+
+    daily_Arable_list_ET0[[j]]=na.omit(daily_Arable_list_ET0[[j]])#discard NAs
+
+  if(length(daily_Arable_list_ET0[[j]])>0){
+
+    coord_Arable=sp::SpatialPoints(coords = cbind(as.numeric(daily_Arable_list_ET0[[j]]$lon),as.numeric(daily_Arable_list_ET0[[j]]$lat)))#make spatial points out of it
+    coord_Arable_sf=sf::st_as_sf(sp::SpatialPoints(coords = cbind(as.numeric(daily_Arable_list_ET0[[j]]$lon),as.numeric(daily_Arable_list_ET0[[j]]$lat))))#make sf out of sp
+    sf::st_crs(coord_Arable_sf)=4326#st_crs(shape_site)#set same crs as shapefile from site
+    coord_Arable_sf=sf::st_transform(coord_Arable_sf,sf::st_crs(shape_site))
+    coord_Arable_sf$ET0=as.numeric(daily_Arable_list_ET0[[j]]$ET0)#add ET0
+    coord_Arable_sf$date=as.Date(daily_Arable_list_ET0[[j]]$date)#add date
+    coord_Arable_sf$device=devices$items.name[j]#add device name
+
+    shape_site_buffer=sf::st_buffer(shape_site,dist=500)#create buffer of 500 m around site
+    sf::st_intersects(coord_Arable_sf[1,],shape_site_buffer)#check for intersections of points and buffer of site
+
+    for (i in 1:nrow(coord_Arable_sf)){
+      if(length(sf::st_intersects(coord_Arable_sf[i,][[1]],shape_site_buffer)[[1]])==1){
+        intersec_points_buff[names(intersec_points_buff)==coord_Arable_sf$date[i]][[1]]$ET0[j]=coord_Arable_sf[i,]$ET0
+        intersec_points_buff[names(intersec_points_buff)==coord_Arable_sf$date[i]][[1]]$date[j]=as.character(coord_Arable_sf[i,]$date)
+        intersec_points_buff[names(intersec_points_buff)==coord_Arable_sf$date[i]][[1]]$device[j]=devices$items.name[j]
+      }
+    }
+  }
+  }
+
+  ET0_Arable=as.data.frame(matrix(NA,length(intersec_points_buff),2))
+  colnames(ET0_Arable)=c("ET0","DOY")
+  for (i in 1:length(intersec_points_buff)){
+    ET0_Arable$ET0[i]=mean(intersec_points_buff[[i]]$ET0,na.rm=T)
+    ET0_Arable$DOY[i]=lubridate::yday(names(intersec_points_buff)[i])
+  }
+
+
+  ET0_Arable=zoo::na.approx(ET0_Arable,na.rm=F)
+  ET0_Arable=as.data.frame(ET0_Arable)
+  #write.csv(ET0_Arable,paste(file.path(target_path),"/DWD_ET0_",target_year,".csv",sep="")) #-->define target path to save locally on hard drive
+  return(ET0_Arable)
+
+}
+
+
+
+

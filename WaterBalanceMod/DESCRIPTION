@@ -1,0 +1,43 @@
+Package: WaterBalanceMod
+Type: Package
+Title: Calculating water balance from NDVI-imagines
+Version: 0.1.0
+Author: Thomas Piernicke
+Maintainer: Thomas Piernicke <thomasp@gfz-potsdam.de>
+Description: Calculating water balance from NDVI images, DWD reference evapotranspiration and DWD Radolan precipitation data
+    Use four spaces when indenting paragraphs within the Description.
+License: MIT
+Encoding: UTF-8
+LazyData: true
+Imports: ncdf4,
+          raster,
+          sf,
+          zoo,
+          lubridate,
+          stars,
+          ggplot2,
+          tidyr,
+          rdwd,
+          dwdradar,
+          R.utils,
+          utils,
+          terra,
+          foreach,
+          parallel,
+          doParallel,
+          gridExtra,
+          httr,
+          httr2,
+          devtools,
+          ggplot2,
+          RColorBrewer,
+          tidyverse,
+          RSelenium,
+          stringr,
+          rvest,
+          httr,
+          sp,
+          geosphere,
+          RCurl,
+          methods
+RoxygenNote: 7.3.2
