@@ -60,7 +60,7 @@ DownloadET0fromArable=function(user_name=NA,
 
   for (j in 1:length(devices$items.name)){
 
-    daily_Arable_list_ET0[[j]]=na.omit(daily_Arable_list_ET0[[j]])#discard NAs
+    daily_Arable_list_ET0[[j]]=stats::na.omit(daily_Arable_list_ET0[[j]])#discard NAs
 
   if(length(daily_Arable_list_ET0[[j]])>0){
 

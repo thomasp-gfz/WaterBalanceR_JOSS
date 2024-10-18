@@ -1,6 +1,6 @@
 #' Downloads and processes precipitation data from German Weather Service (DWD)
 #' @param target_path Path to download and save shapefile for every DOY within timespan of interest
-#' @param target_site_shp Path to shapefile containing your AOI (string).
+#' @param target_site Path to shapefile containing your AOI (string).
 #' @param start_date start date of interest (e.g.: "2021-01-01"). If empty, default is 1st Jan of recent year.
 #' @param end_date end date of interest (e.g.: "2021-12-31"). If empty, default is yesterday.
 #' @return Shapefiles for every DOY containing precipitation data for your AOI.

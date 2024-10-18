@@ -29,10 +29,10 @@ dates_cloudcover=items$features.properties$datetime
 #setwd("Z:/GFZ/00R-Scripte/API_Sentinel_2/")
 connection = openeo::connect(host = "https://openeo.dataspace.copernicus.eu")
 openeo::login()
-processes_list=list_processes()
+processes_list=openeo::list_processes()
 p = openeo::processes()
-collections = list_collections()
-formats = list_file_formats()
+collections = openeo::list_collections()
+formats = openeo::list_file_formats()
 data = p$load_collection(id = collections$`SENTINEL2_L2A`,
                          spatial_extent = list(west=as.numeric(sf::st_bbox(shape_site)[1]),
                                                south=as.numeric(sf::st_bbox(shape_site)[2]),
@@ -57,12 +57,12 @@ if(dir.exists(target_path)==F){
   dir.create(target_path)
 }
 
-start_job(job = job, log = TRUE)
+openeo::start_job(job = job, log = TRUE)
 
 while(1==1){
   Sys.sleep(10)
-  if(invisible(class(list_results(job = job))=="ResultList")){
-  invisible(download_results(job = job, folder = target_path))
+  if(invisible(class(openeo::list_results(job = job))=="ResultList")){
+  invisible(openeo::download_results(job = job, folder = target_path))
     break
   }
 }

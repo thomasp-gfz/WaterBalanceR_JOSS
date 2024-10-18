@@ -98,8 +98,8 @@ DownloadRaindancer=function(sourcepath,
 
   #copy files from download path to favourite path
   list_downloaded_files=list.files(sourcepath)
-  list_downloaded_files_recent=list_downloaded_files[is.na(str_match(list_downloaded_files,"Einsatzprotokoll"))==F |
-                                                       is.na(str_match(list_downloaded_files,"Koordinatenprotokoll"))==F &
+  list_downloaded_files_recent=list_downloaded_files[is.na(stringr::str_match(list_downloaded_files,"Einsatzprotokoll"))==F |
+                                                       is.na(stringr::str_match(list_downloaded_files,"Koordinatenprotokoll"))==F &
                                                        (strptime(substr(list_downloaded_files,nchar(list_downloaded_files)-21,nchar(list_downloaded_files)-5),format='%Y-%m-%d_%H%M%S')>Sys.time()-60000)==T]
 
   folder_time=gsub("-","_",gsub(":","_",gsub(" ","_",substr(Sys.time(),1,19))))

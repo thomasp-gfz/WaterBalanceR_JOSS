@@ -4,6 +4,7 @@
 #' Reference Evapotranspiration can be used either from German Weather Service (DWD) or Arable Mark 2 ground stations from your site.
 #' Precipitation is gathered from either the German Weather Service (DWD) product "RADOLAN" or FURUNO WR 2120, if available.
 #' @param mypath Path to your project main folder (string). The main folder needs to contain the subfolders "NDVI_Files" containing your NDVI-files for your AOI.
+#' @param shape_site shapefile of AOI (string)
 #' @param target_res Resolution of product (integer). Default is 5 m, but can be turned down to at least 3 m.
 #' @param method_NDVI Method of processing NDVI values: "uwdw" or "direct" (string). Direct is actually using a higher accuracy but is flagged in an unknown way. That is why "uwdw" is set as default and should be kept as this.
 #' @param modeltype Method of modelling NDVI values: "poly" or "linear" (string). Should always be kept as "poly" (default).
@@ -307,8 +308,8 @@ calcWB=function(mypath,
     subs_beregnung=raster::subset(irrig_sf,irrig_sf$DOY==i)
     subs_beregnung2=raster::subset(irrig_sf,irrig_sf$DOY==(i+1))
     subs_beregnung0=raster::subset(irrig_sf,irrig_sf$DOY==(i-1))
-    aggregated_cropped_subsetted_10=sf::st_as_sf(as(NDVI[[i]],'SpatialPolygonsDataFrame'))
-    aggregated_cropped_subsetted_10_ETC=sf::st_as_sf(as(NDVI[[i]],'SpatialPolygonsDataFrame'))
+    aggregated_cropped_subsetted_10=sf::st_as_sf(methods::as(NDVI[[i]],'SpatialPolygonsDataFrame'))
+    aggregated_cropped_subsetted_10_ETC=sf::st_as_sf(methods::as(NDVI[[i]],'SpatialPolygonsDataFrame'))
 
     print(i)
 

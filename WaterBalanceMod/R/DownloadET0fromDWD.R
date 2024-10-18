@@ -21,7 +21,7 @@ DownloadET0fromDWD=function(target_path=NA,
   }
   filename_fao=paste("grids_germany_daily_evaporation_fao_",target_year,"_v1.1.nc",sep="")
   tf_fao=paste(file.path(target_path,"ET_fao"),"/",filename_fao,sep="")
-  try(download.file(paste(dir_ET_fao,filename_fao,sep=""), tf_fao,mode = 'wb'))
+  try(utils::download.file(paste(dir_ET_fao,filename_fao,sep=""), tf_fao,mode = 'wb'))
 
   options(timeout=timeout_def)
 

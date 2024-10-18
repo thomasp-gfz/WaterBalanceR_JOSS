@@ -86,7 +86,7 @@ colnames(coord_tab_all_bound_distinct)=c("Breitengrad",
                                          "Bar",
                                          "Status")
 
-coord_tab_all_bound_distinct=na.omit(coord_tab_all_bound_distinct)
+coord_tab_all_bound_distinct=stats::na.omit(coord_tab_all_bound_distinct)
 
 unique_sites=unique(coord_tab_all_bound_distinct$Site)
 
@@ -154,7 +154,7 @@ for (i in 1:length(site_irrigation)){
   site_irrigation_2[[i]]$Datum_Uhrzeit_mean=as.POSIXct(strptime(site_irrigation_2[[i]]$Datum_Uhrzeit_mean,"%Y-%m-%d %H:%M:%S" ))
 
   #write filtered values in new matrix
-  site_irrigation_2_new[[i]]=na.omit(site_irrigation_2[[i]][,9:12])
+  site_irrigation_2_new[[i]]=stats::na.omit(site_irrigation_2[[i]][,9:12])
   site_irrigation_2_orig[[i]]=site_irrigation_2[[i]][,1:7]
 
   #calculate time difference in hours
@@ -170,13 +170,13 @@ for (i in 1:length(site_irrigation)){
 
   site_irrigation_2_new[[i]]$dist_gps=NA
   for (j in 1:(nrow(site_irrigation_2_new[[i]])-1)){
-    site_irrigation_2_new[[i]]$dist_gps[j+1]=geosphere::distm(c(site_irrigation_2_new[[i]]$Laengengrad[j], site_irrigation_2_new[[i]]$Breitengrad[j]),c(site_irrigation_2_new[[i]]$Laengengrad[j+1], site_irrigation_2_new[[i]]$Breitengrad[j+1]), fun = distGeo)
+    site_irrigation_2_new[[i]]$dist_gps[j+1]=geosphere::distm(c(site_irrigation_2_new[[i]]$Laengengrad[j], site_irrigation_2_new[[i]]$Breitengrad[j]),c(site_irrigation_2_new[[i]]$Laengengrad[j+1], site_irrigation_2_new[[i]]$Breitengrad[j+1]), fun = geosphere::distGeo)
   }
   site_irrigation_2_new[[i]]$geschwindigkeit_gps=site_irrigation_2_new[[i]]$dist_gps/site_irrigation_2_new[[i]]$timedif
 
   site_irrigation_2_orig[[i]]$dist_gps=NA #for original Data
   for (j in 1:(nrow(site_irrigation_2_orig[[i]])-1)){
-    site_irrigation_2_orig[[i]]$dist_gps[j+1]=geosphere::distm(c(site_irrigation_2_orig[[i]]$Laengengrad[j], site_irrigation_2_orig[[i]]$Breitengrad[j]),c(site_irrigation_2_orig[[i]]$Laengengrad[j+1], site_irrigation_2_orig[[i]]$Breitengrad[j+1]), fun = distGeo)
+    site_irrigation_2_orig[[i]]$dist_gps[j+1]=geosphere::distm(c(site_irrigation_2_orig[[i]]$Laengengrad[j], site_irrigation_2_orig[[i]]$Breitengrad[j]),c(site_irrigation_2_orig[[i]]$Laengengrad[j+1], site_irrigation_2_orig[[i]]$Breitengrad[j+1]), fun = geosphere::distGeo)
   }
   site_irrigation_2_orig[[i]]$geschwindigkeit_gps=site_irrigation_2_orig[[i]]$dist_gps/site_irrigation_2_orig[[i]]$timedif
 
@@ -233,7 +233,7 @@ for (i in 1:length(site_irrigation)){
   for (k in 1:nrow(site_irrigation_2_new_interp[[i]])){
     for (j in 1:ncol(site_irrigation_2_new_interp[[i]])){
       if (is.na(site_irrigation_2_new_interp[[i]][m,j])==F & is.na(site_irrigation_2_new_interp[[i]][n,j])==F){
-        site_irrigation_2_new_interp[[i]][m:n,j]=approx(site_irrigation_2_new_interp[[i]][m:n,j],n=6)$y
+        site_irrigation_2_new_interp[[i]][m:n,j]=stats::approx(site_irrigation_2_new_interp[[i]][m:n,j],n=6)$y
       }}
     m=m+5
     n=n+5
@@ -243,7 +243,7 @@ for (i in 1:length(site_irrigation)){
   site_irrigation_2_new_interp[[i]]$Datum_Uhrzeit_mean=as.POSIXct(site_irrigation_2_new_interp[[i]]$Datum_Uhrzeit_mean,origin = '1970-01-01')
 
   #discard NAs from interpolated data
-  site_irrigation_2_new_interp_na_omit[[i]]=na.omit(site_irrigation_2_new_interp[[i]])
+  site_irrigation_2_new_interp_na_omit[[i]]=stats::na.omit(site_irrigation_2_new_interp[[i]])
 
   #reproject shapefiles and save as list - for interpolated data
   csv_list_new_interp_na_omit_shapes_32633[[i]]=sf::st_as_sf(site_irrigation_2_new_interp_na_omit[[i]], coords = c("Laengengrad_mean", "Breitengrad_mean"), crs = 4326)
@@ -283,11 +283,11 @@ for (i in 1:length(site_irrigation)){
   }
 
     if(nrow(Buffer_36m[[i]])>0){
-    Buffer_36m_all_shp[[i]]=as(Buffer_36m[[i]], 'Spatial')
+    Buffer_36m_all_shp[[i]]=sf::as(Buffer_36m[[i]], 'Spatial')
     }
 
     if(nrow(Buffer_36m_orig[[i]])>0){
-    Buffer_36m_orig_all_shp[[i]]=as(Buffer_36m_orig[[i]], 'Spatial')
+    Buffer_36m_orig_all_shp[[i]]=sf::as(Buffer_36m_orig[[i]], 'Spatial')
     }
   }
 }
@@ -321,8 +321,8 @@ if(dir.exists(file.path(paste(targetpath,sep="")))==F){
 }
 
 setwd(paste(targetpath,sep=""))
-suppressWarnings(sf::st_write(st_as_sf(Buffer_36m_orig_all_shp_2), paste(targetpath,"Buffer_36m_all_orig.shp",sep=""), driver = 'ESRI Shapefile', layer = 'Buffer_36m_all_orig', overwrite_layer = T,append=FALSE))
-suppressWarnings(sf::st_write(st_as_sf(Buffer_36m_all_shp_2), paste(targetpath,"Buffer_36m_all_interp.shp",sep=""), driver = 'ESRI Shapefile', layer = 'Buffer_36m_all_interp', overwrite_layer = T,append=FALSE))
+suppressWarnings(sf::st_write(sf::st_as_sf(Buffer_36m_orig_all_shp_2), paste(targetpath,"Buffer_36m_all_orig.shp",sep=""), driver = 'ESRI Shapefile', layer = 'Buffer_36m_all_orig', overwrite_layer = T,append=FALSE))
+suppressWarnings(sf::st_write(sf::st_as_sf(Buffer_36m_all_shp_2), paste(targetpath,"Buffer_36m_all_interp.shp",sep=""), driver = 'ESRI Shapefile', layer = 'Buffer_36m_all_interp', overwrite_layer = T,append=FALSE))
 
 }
 
