@@ -7,6 +7,10 @@ R-Package to process maps showing daily, spatially distributed water balance fü
 
 As water is a usually limited source in agriculture, it needs to be saved as best as possible. Starch potatoes in NE Germany need to be irrigated with about 80 - 120 mm during a vegetation period. Here, agriculturists often overestimate the potatoes need of water, so the dispense can be optimized. Furthermore, the model Output can show a high spatial resolution, default 5 m, so an intraside specific irrigation can be applied, depending on the individual need of water in every pixel.
 
+## Using example data
+
+The "sample_data" folder consists of a set of NDVI-sample data (folder "NDVI-Files") including DJI Phantom 4 Multispectral data (nomenclature: "[YYYYMMDD]_P4M1.tif") and PlanetScope data (nomenclature: "[YYYYMMDD]_Plan.tif"). Besides there is a "shapefile"-folder, that consists of "sample_2023.shp", which is a shapefile containing a polygon of a sample site, that spatially fits to the one from the NDVI files. Furthermore, there is a "Buffer_36m_all_interp.shp", which is a shapefile, that contains irrigation data according to the sample site. These files are needed, to run the actual model "calcWB()" and getting Maps as shapefiles and/or geotiffs showing the waterbalance and other results for your AOI. To get additional information about specific spots within the sample site and to plot maps containing them, there is "Buffer_5_WB.shp", which is a shapefile, that contains polygons of sample spots. To get These resulting maps, you need to run the "calcWBplots()" after using the resulting .RData - file from "calcWB()".
+
 ## Input data and configuration
 
 The model needs at least NDVI data (GeoTIFF), a shapefile containing the AOI and a shapefile containing the irrigation amount. To show maps and detailed results for certain spots, you can also add a shapefile containting polygons for the spots the you are interested in. The folder "example_data" contains a set of data, that is the minimum required to run the model as well as as a script that is configured accordingly.

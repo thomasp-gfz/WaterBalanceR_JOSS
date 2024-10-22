@@ -2,6 +2,15 @@
 History
 =======
 
+0.1.3 (2024-10-22)
+------------------
+
+General settings:
+
+* Fixed some naming inconsistencies in results
+* Added how-to-use sample data in README
+
+
 0.1.2 (2024-10-18)
 ------------------
 
