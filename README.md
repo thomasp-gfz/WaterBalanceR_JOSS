@@ -10,6 +10,7 @@ As water is a usually limited source in agriculture, it needs to be saved as bes
 ## Using example data
 
 The "sample_data" folder consists of a set of NDVI-sample data (folder "NDVI-Files") including DJI Phantom 4 Multispectral data (nomenclature: "[YYYYMMDD]_P4M1.tif") and PlanetScope data (nomenclature: "[YYYYMMDD]_Plan.tif"). Besides there is a "shapefile"-folder, that consists of "sample_2023.shp", which is a shapefile containing a polygon of a sample site, that spatially fits to the one from the NDVI files. Furthermore, there is a "Buffer_36m_all_interp.shp", which is a shapefile, that contains irrigation data according to the sample site. These files are needed, to run the actual model "calcWB()" and getting Maps as shapefiles and/or geotiffs showing the waterbalance and other results for your AOI. To get additional information about specific spots within the sample site and to plot maps containing them, there is "Buffer_5_WB.shp", which is a shapefile, that contains polygons of sample spots. To get These resulting maps, you need to run the "calcWBplots()" after using the resulting .RData - file from "calcWB()".
+As a result you get a Folder named after the given configuration, e.g. "uwdw_poly_radolan_1_132_5", which means "uwdw" = method of calculation of NDVI, "poly" = method of modeling, "radolan" = source of precipitation, "1" = irrigation Efficiency, "132" = last day of NDVI being 0, "5" = spatial Resolution in meter.
 
 ## Input data and configuration
 
@@ -55,7 +56,7 @@ Here, you can name the the target resolution of your resulting map in meter. Def
 Here, you can choose a method, that is used to process the input NDVI data. Just leave at "uwdw" as default.
 
 ### Method of modeling ("modeltype")
-Just leave at "poly" as deafult.
+Just leave at "poly" as default.
 
 ### Last day with NDVI = 0 ("last_NDVI_0")
 Here you need to enter the DOY, when no plants were last visible.
