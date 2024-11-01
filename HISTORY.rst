@@ -2,6 +2,17 @@
 History
 =======
 
+0.1.4 (2024-11-01)
+------------------
+
+General settings:
+
+* Revised README - "How to install the package?" and "How to use sample data?"
+* Added .csv file containing ReferenceET and .shp files containing precipitation data to sample files, so they do not have to be downloaded and the processing runs faster
+* Fixed bug, that caused the shapefiles to have no crs.
+* Fixed bug, that caused the shapefiles and geotiffs to have the wrong resolution
+
+
 0.1.3 (2024-10-22)
 ------------------
 
@@ -16,7 +27,7 @@ General settings:
 
 General settings:
 
-* Fixed some minor bugs
+* Fixed some minor bugs and naming of variables
 
 
 0.1.1 (2024-10-17)
@@ -24,7 +35,7 @@ General settings:
 
 General settings:
 
-* Added Example data
+* Added sample data
 
 
 0.1.0 (2024-10-10)

@@ -3,15 +3,15 @@ rm(list=ls())
 try(dev.off())
 
 ### 0.2 configuration ---
-mypath="waterbalancemodel/WaterBalanceMod/sample_data" #replace example path with your local directory
+mypath="C:/Users/username/Desktop/waterbalancemodel-main/waterbalancemodel-main/sample_data" #replace example path with your local directory
 shape_site = sf::st_read(paste(mypath,"/Shapefile/sample_2023.shp",sep="")) #shapefile of AOI
 target_res=5 #spatial resolution of results, must be >=5
 method_NDVI="uwdw"# uwdw or direct, leave at uwdw
 modeltype="poly" #poly or linear, leave at poly
 last_NDVI_0=132 #last day with NDVI==0, so with no visible vegetation
-ET_ref=NA #list with daily reference ET, if NA, then...
+ET_ref=read.csv(paste(mypath,"/DWD_ET0_2023.csv",sep=""),sep=",") #csv file with with daily reference ET or leave at NA. If NA, then...
 ET_ref_dl="DWD" #...choose from "DWD" or "Arable" to download reference ET
-path_WR_precip=NA #folder with shapefiles of daily precipitation for AOI, either from furuno or radolan or leave at "NA".
+path_WR_precip=paste(mypath,"/Radolan_2023_processed_daily",sep="") #folder with shapefiles of daily precipitation for AOI, either from furuno or radolan or leave at "NA".
 precip_source="radolan" #choose "radolan" or "furuno". if line above is NA, then choose "radolan" to automatically download und process radolan data
 irrig_sf=sf::st_read(paste(mypath,"/Shapefile/Buffer_36m_all_interp.shp",sep="")) #Shapefile with irrigation amounts from raindancer
 irrigation_efficiency=1 #0.775 #choose irrigation efficiency. If unsure, leave at 1

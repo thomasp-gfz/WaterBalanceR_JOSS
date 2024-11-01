@@ -1,18 +1,39 @@
 
 # WaterBalanceMod
 
-R-Package to process maps showing daily, spatially distributed water balance für starch potatoes. NDVI data needs to be derived from either preprocessed DJI Phantom 4 Multispectral or PlanetScope satellite data.
+R-Package to process maps showing daily, spatially distributed water balance for starch potatoes. NDVI data needs to be derived from either preprocessed DJI Phantom 4 Multispectral or PlanetScope satellite data.
 
 ## Aim of Model
 
-As water is a usually limited source in agriculture, it needs to be saved as best as possible. Starch potatoes in NE Germany need to be irrigated with about 80 - 120 mm during a vegetation period. Here, agriculturists often overestimate the potatoes need of water, so the dispense can be optimized. Furthermore, the model Output can show a high spatial resolution, default 5 m, so an intraside specific irrigation can be applied, depending on the individual need of water in every pixel.
+As water is a usually limited source in agriculture, it needs to be saved as best as possible. Starch potatoes in NE Germany need to be irrigated with about 80 - 120 mm during a vegetation period depending on climate conditions. Here, agriculturists often overestimate the potatoes need of water, so the dispense can be optimized. Furthermore, the model output can show a high spatial resolution, default 5 m, so an intraside specific irrigation can be applied, depending on the individual need of water in every pixel.
 
-## Using example data
+## How to install the package?
 
-The "sample_data" folder consists of a set of NDVI-sample data (folder "NDVI-Files") including DJI Phantom 4 Multispectral data (nomenclature: "[YYYYMMDD]_P4M1.tif") and PlanetScope data (nomenclature: "[YYYYMMDD]_Plan.tif"). Besides there is a "shapefile"-folder, that consists of "sample_2023.shp", which is a shapefile containing a polygon of a sample site, that spatially fits to the one from the NDVI files. Furthermore, there is a "Buffer_36m_all_interp.shp", which is a shapefile, that contains irrigation data according to the sample site. These files are needed, to run the actual model "calcWB()" and getting Maps as shapefiles and/or geotiffs showing the waterbalance and other results for your AOI. To get additional information about specific spots within the sample site and to plot maps containing them, there is "Buffer_5_WB.shp", which is a shapefile, that contains polygons of sample spots. To get These resulting maps, you need to run the "calcWBplots()" after using the resulting .RData - file from "calcWB()".
+The package includes the "install_WaterBalanceMod.R" file. Open it using R or RStudio and change `wd <-` to your local path, where there your downloaded version of the WaterBalanceMod is saved. Run the script. When asked, if depending packages shall be installed, confirm. When everything is installed, the model should be ready to be run. To run the model you can use the attached sample data, that you can find in the subfolder "sample_data" (How to: see below). Copy that folder to your preferred working Directory first.
+
+## Using sample data
+
+### What do we have here?
+
+The "sample_data" folder consists of
+- a set of NDVI-sample data (folder "NDVI-Files") including DJI Phantom 4 Multispectral data (nomenclature: "[YYYYMMDD]_P4M1.tif") and PlanetScope data (nomenclature: "[YYYYMMDD]_Plan.tif"). 
+- a set of shapefiles (folder "Shapefile") including "sample_2023.shp", which contains a polygon of a sample site, that spatially fits to the one from the NDVI files, and "Buffer_36m_all_interp.shp", which contains irrigation data according to the sample site, and "Buffer_5_WB.shp", which contains a set of sample spots within the AOI (polygon circles with a diameter of 5m), that we can use to get further details for the area, that these spots are covering.
+- a "DWD_ET0_2023.csv" file containing reference ET from German Weather Service, so it does not have to be downloaded
+- a Folder "Radolan_2023_processed_daily" containing daily precipitation data from German Weather Service, so it does not have to be downloaded
+- an R-file "run_calcWB_2023_sample.R" including an example configuration for running the water balance model.
+
+### How do we configure the "run_calcWB_2023_sample.R"?
+
+As `mypath=`you should use your preferred working directory, where you copied your sample data. The rest of the scripts can stay unchanged. Further information about the configuration possibilies can be found below.
+The script can be subdivided into three parts:
+- 1st: empty Environment and configuration
+- 2nd: run the actual model (`calcWB()`) to create maps as shapefiles and/or geotiffs showing the waterbalance and other results for your AOI.
+- 3rd: create plots, that show additional information about the sample spots within the AOI, that you are interested in (shapefile: "Buffer_5_WB.shp").To get These resulting maps, you need to run the "calcWBplots()" after using the resulting .RData - file from "calcWB()".
+
 As a result you get a Folder named after the given configuration, e.g. "uwdw_poly_radolan_1_132_5", which means "uwdw" = method of calculation of NDVI, "poly" = method of modeling, "radolan" = source of precipitation, "1" = irrigation Efficiency, "132" = last day of NDVI being 0, "5" = spatial Resolution in meter.
 
-## Input data and configuration
+
+## Input data and configuration - further details
 
 The model needs at least NDVI data (GeoTIFF), a shapefile containing the AOI and a shapefile containing the irrigation amount. To show maps and detailed results for certain spots, you can also add a shapefile containting polygons for the spots the you are interested in. The folder "example_data" contains a set of data, that is the minimum required to run the model as well as as a script that is configured accordingly.
 

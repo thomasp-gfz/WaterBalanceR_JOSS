@@ -1,7 +1,7 @@
 library("devtools")
 library("roxygen2")
 
-wd <- "C:/Users/asinu/Desktop/WaterBalanceMod_Git/waterbalancemodel/WaterBalanceMod/" #replace with your local path, if using windows
+wd <- "C:/Users/username/Desktop/WaterBalanceMod_Git/waterbalancemodel/WaterBalanceMod/" #replace with your local path, if using windows
 setwd(wd)
 devtools::document()
 setwd("..")
