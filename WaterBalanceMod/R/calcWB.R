@@ -427,14 +427,14 @@ calcWB=function(mypath,
         dir.create(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_waterbalance_DOY"), showWarnings = FALSE, recursive=TRUE)
       }
       setwd(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_waterbalance_DOY"))
-      stars::write_stars(stars::st_rasterize(WB_daily[[i]],dx=raster::res(aggregated[[length(aggregated)]])[1],dy=raster::res(aggregated[[length(aggregated)]])[2]), paste("waterbalance_DOY_test",i,".tif",sep=""))
-      
+      stars::write_stars(stars::st_rasterize(WB_daily[[i]],dx=raster::res(aggregated[[length(aggregated)]])[1],dy=raster::res(aggregated[[length(aggregated)]])[2]), paste("waterbalance_DOY_",i,".tif",sep=""))
+
       if(dir.exists(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_ETc_precip_DOY"))==F){
         dir.create(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_ETc_precip_DOY"), showWarnings = FALSE, recursive=TRUE)
       }
       setwd(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_ETc_precip_DOY"))
       stars::write_stars(stars::st_rasterize(ETC_ND_daily[[i]],dx=raster::res(aggregated[[length(aggregated)]])[1],dy=raster::res(aggregated[[length(aggregated)]])[2]), paste("ETc_precip_DOY_",i,".tif",sep=""))
-      
+
       if(dir.exists(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_Irrigation_DOY"))==F){
         dir.create(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_Irrigation_DOY"), showWarnings = FALSE, recursive=TRUE)
       }
@@ -498,7 +498,7 @@ calcWB=function(mypath,
     print("11 saving as GeoTIFF - done")
     if(raster::res(aggregated[[length(aggregated)]])[1]!=5 | raster::res(aggregated[[length(aggregated)]])[2]!=5){
       print(paste("Target resolution could not be reached due to small site sample. Resolution is instead: ",raster::res(aggregated[[length(aggregated)]])," m",sep=""))}
-    
+
   }
 
 
@@ -516,7 +516,7 @@ calcWB=function(mypath,
         dir.create(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_waterbalance_DOY"), showWarnings = FALSE, recursive=TRUE)
       }
       setwd(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_waterbalance_DOY"))
-      
+
       sf::st_crs(WB_daily[[i]])=sf::st_crs(shape_site)
       sf::st_write(WB_daily[[i]],paste("waterbalance_DOY_",i,".shp",sep=""),delete_layer=T,quiet = T)
 
@@ -603,7 +603,7 @@ calcWB=function(mypath,
     print("12. saving as Shapefile done - saving .RDATA-file")
     if(raster::res(aggregated[[length(aggregated)]])[1]!=5 | raster::res(aggregated[[length(aggregated)]])[2]!=5){
       print(paste("Target resolution could not be reached due to small site sample. Resolution is instead: ",raster::res(aggregated[[length(aggregated)]])," m",sep=""))}
-    
+
   }
 
     if(save_RDATA==TRUE){
@@ -632,7 +632,7 @@ calcWB=function(mypath,
     print("13. Saving .RData-file - done")
     }
 
-  
+
 
   end.time = Sys.time()
   print(paste("All results successfully created. Start Time: ",start.time,", End Time: ",end.time,sep=""))
