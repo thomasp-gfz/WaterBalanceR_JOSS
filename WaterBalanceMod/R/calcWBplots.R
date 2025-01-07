@@ -373,7 +373,9 @@ calcWBplots=function(source_path=NA,
       ggplot2::labs(title=paste("Cumulated Water Balance at DOY (DAP) = ",i,"(",i-plant_doy,")",sep=""), x="DOY",y="Water Balance [mm]", color="Plot sample")+
       ggplot2::scale_color_manual(labels = c(as.character(1:nrow(buffer20))), values = brewer.pal_col[1:nrow(buffer20)])+
       ggplot2::geom_vline(xintercept = i)+
+      ggplot2::geom_hline(yintercept = 0, linetype = "solid", color = "grey30") +
       ggplot2::theme_bw()+
+      ggplot2::geom_hline(yintercept = 0, linetype = "solid", color = "grey30") +
       ggplot2::theme(axis.text.x = ggplot2::element_text(size = 14), axis.title.x = ggplot2::element_text(size = 16),
             axis.text.y = ggplot2::element_text(size = 14), axis.title.y = ggplot2::element_text(size = 16),
             plot.title = ggplot2::element_text(size = 16, face = "bold", color = "black"),

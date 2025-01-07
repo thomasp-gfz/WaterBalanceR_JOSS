@@ -2,6 +2,15 @@
 History
 =======
 
+0.1.5 (2024-11-29)
+------------------
+
+General settings:
+
+* Added solid line at y = 0 in water balance plot for calcWBplots()
+* Added Sentinel-2 as usable data source
+* Removed calculation using NDVI-correlation values directly given by Arable
+
 0.1.4 (2024-11-01)
 ------------------
 

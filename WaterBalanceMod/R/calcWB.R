@@ -6,7 +6,6 @@
 #' @param mypath Path to your project main folder (string). The main folder needs to contain the subfolders "NDVI_Files" containing your NDVI-files for your AOI.
 #' @param shape_site shapefile of AOI (string)
 #' @param target_res Resolution of product (integer). Default is 5 m, but can be turned down to at least 3 m.
-#' @param method_NDVI Method of processing NDVI values: "uwdw" or "direct" (string). Direct is actually using a higher accuracy but is flagged in an unknown way. That is why "uwdw" is set as default and should be kept as this.
 #' @param modeltype Method of modelling NDVI values: "poly" or "linear" (string). Should always be kept as "poly" (default).
 #' @param last_NDVI_0 Number of day with day (DOI, integer) with NDVI = 0, i.e. last day before germination.
 #' @param ET_ref Either csv-file with reference ET for every day of vegetation period or recent date (read.csv(paste(mypath,"/ET0_Arable_2021.csv",sep=""),sep=",")) or leave at NA. When using the list, the first column needs to be ascending numerized (integer) from one on with empty header. The second column contains the reference ET value for the certain DOY (float) with header "V1". The third column needs to be the date (format "YYYY-MM-DD", e.g. "2021-05-01). When left NA (default), the reference ET is automatically downloaded from either German Weather Servcice (DWD, default) or Arable, if you have an account. This decision needs to be made in the next step.
@@ -28,7 +27,6 @@
 calcWB=function(mypath,
                        shape_site=NA,
                        target_res=5,
-                       method_NDVI="uwdw",
                        modeltype="poly",
                        last_NDVI_0=NA,
                        ET_ref=NA,
@@ -48,6 +46,10 @@ calcWB=function(mypath,
 
   target_res=target_res
   NDVI_List=list.files(paste(mypath,"/NDVI_Files/",sep=""),pattern = "\\.tif$")
+  if(any(substr(NDVI_List,10,13)=="Sen2")){
+    print("Sentinel-2 images cannot be processed with a resolution of res < 10 m. Set target_res = 10")
+    target_res=10
+  }
   DOY=lubridate::yday(as.POSIXct(strptime(substr(NDVI_List,1,8),"%Y%m%d" ))) #fly over dates for Planet stellites
 
   #### 1.create empty lists ----
@@ -74,6 +76,9 @@ calcWB=function(mypath,
       raster_help_nir=raster::raster(NDVI_List[[i]],band = 8)
       raster_help_NDVI=(raster_help_nir-raster_help_red)/(raster_help_nir+raster_help_red)
       originals[[DOY[i]]]=raster_help_NDVI
+      originals[[DOY[i]]]@data@names=as.character(DOY[i])
+    }  else if (substr(NDVI_List[[i]],10,13)=="Sen2"){
+      originals[[DOY[i]]]=raster::raster(NDVI_List[[i]])
       originals[[DOY[i]]]@data@names=as.character(DOY[i])
     }
   }
@@ -111,44 +116,39 @@ calcWB=function(mypath,
       NDVI_source="UAV"
 
       #UAV
-      if(method_NDVI=="uwdw" & modeltype=="linear"){
+      if(modeltype=="linear"){
         aggregated_cropped_subsetted_2[[DOY[i]]]=0.72137*aggregated_cropped_subsetted[[DOY[i]]]+0.17137#Korrektur NDVI auf Arable-Standard, UAV und Rohwerte
-      } else if (method_NDVI=="direct" & modeltype=="linear"){
-        aggregated_cropped_subsetted_2[[DOY[i]]]=0.77585*aggregated_cropped_subsetted[[DOY[i]]]+0.14805#Korrektur NDVI auf Arable-Standard, UAV und direkte NDVI-Werte
-      } else if(method_NDVI=="uwdw" & modeltype=="poly"){
+      } else if(modeltype=="poly"){
         aggregated_cropped_subsetted_2[[DOY[i]]]=
           (2.065*aggregated_cropped_subsetted[[DOY[i]]]^3)-
           (3.7264*aggregated_cropped_subsetted[[DOY[i]]]^2)+
           (2.7397*aggregated_cropped_subsetted[[DOY[i]]])-
           0.1144#Korrektur NDVI auf Arable-Standard, UAV und direkte NDVI-Werte
-      } else if (method_NDVI=="direct" & modeltype=="poly"){
-        aggregated_cropped_subsetted_2[[DOY[i]]]=
-          (1.76528*aggregated_cropped_subsetted[[DOY[i]]]^3)-
-          (3.21885*aggregated_cropped_subsetted[[DOY[i]]]^2)+
-          (2.48910*aggregated_cropped_subsetted[[DOY[i]]])-
-          0.07796#Korrektur NDVI auf Arable-Standard, UAV und direkte NDVI-Werte
       }
-
-    } else{
+    } else if(substr(NDVI_List[[i]],10,13)=="Plan"){
       NDVI_source="Planet"
 
       #Planet
-      if (method_NDVI=="uwdw" & modeltype=="linear"){
+      if (modeltype=="linear"){
         aggregated_cropped_subsetted_2[[DOY[i]]]=0.83632*aggregated_cropped_subsetted[[DOY[i]]]+0.10890#Korrektur NDVI auf Arable-Standard
-      } else if (method_NDVI=="direct" & modeltype=="linear"){
-        aggregated_cropped_subsetted_2[[DOY[i]]]=0.97736*aggregated_cropped_subsetted[[DOY[i]]]+0.01248#Korrektur NDVI auf Arable-Standard, UAV und direkte NDVI-Werte
-      } else if(method_NDVI=="uwdw" & modeltype=="poly"){
+      } else if(modeltype=="poly"){
         aggregated_cropped_subsetted_2[[DOY[i]]]=
           (2.8082*aggregated_cropped_subsetted[[DOY[i]]]^3)-
           (5.2500*aggregated_cropped_subsetted[[DOY[i]]]^2)+
           (3.9685*aggregated_cropped_subsetted[[DOY[i]]])-
           0.4851#Korrektur NDVI auf Arable-Standard, Planet und direkte NDVI-Werte
-      } else if (method_NDVI=="direct" & modeltype=="poly"){
+      }
+    } else if(substr(NDVI_List[[i]],10,13)=="Sen2"){
+      NDVI_source="Sen2"
+
+      #Sentinel-2
+      if (modeltype=="linear"){
+        aggregated_cropped_subsetted_2[[DOY[i]]]=0.76676*aggregated_cropped_subsetted[[DOY[i]]]+0.21722#Korrektur NDVI auf Arable-Standard
+      } else if(modeltype=="poly"){
         aggregated_cropped_subsetted_2[[DOY[i]]]=
-          (2.11710*aggregated_cropped_subsetted[[DOY[i]]]^3)-
-          (4.15536*aggregated_cropped_subsetted[[DOY[i]]]^2)+
-          (3.48386*aggregated_cropped_subsetted[[DOY[i]]])-
-          0.42862#Korrektur NDVI auf Arable-Standard, Planet und direkte NDVI-Werte
+          (-0.80349*aggregated_cropped_subsetted[[DOY[i]]]^2)+
+          (1.62644*aggregated_cropped_subsetted[[DOY[i]]])+
+          0.03727#Korrektur NDVI auf Arable-Standard, Planet und direkte NDVI-Werte
       }
     }
   }
@@ -283,16 +283,8 @@ calcWB=function(mypath,
 
   print("9. start WB Model for doy..")
 
-  if (method_NDVI=="direct"){
-    aspect_KC=1.4580841
-    y_Kc=-0.1733250
-  }
-  if (method_NDVI=="uwdw"){
-    #aspect_KC=1.5514
-    #y_Kc=-0.2216
     aspect_KC=1.4535593
     y_Kc=-0.1686968
-  }
 
   KC=vector(mode='list', length=max(DOY,na.rm=T))#Kc-Wert
   WB_daily=list(NA)
@@ -423,76 +415,76 @@ calcWB=function(mypath,
     #results_list_shp=list(NA)
     for (i in min(DOY,na.rm=T):max(DOY,na.rm=T)){
 
-      if(dir.exists(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_waterbalance_DOY"))==F){
-        dir.create(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_waterbalance_DOY"), showWarnings = FALSE, recursive=TRUE)
+      if(dir.exists(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_waterbalance_DOY"))==F){
+        dir.create(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_waterbalance_DOY"), showWarnings = FALSE, recursive=TRUE)
       }
-      setwd(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_waterbalance_DOY"))
+      setwd(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_waterbalance_DOY"))
       stars::write_stars(stars::st_rasterize(WB_daily[[i]],dx=raster::res(aggregated[[length(aggregated)]])[1],dy=raster::res(aggregated[[length(aggregated)]])[2]), paste("waterbalance_DOY_",i,".tif",sep=""))
 
-      if(dir.exists(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_ETc_precip_DOY"))==F){
-        dir.create(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_ETc_precip_DOY"), showWarnings = FALSE, recursive=TRUE)
+      if(dir.exists(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_ETc_precip_DOY"))==F){
+        dir.create(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_ETc_precip_DOY"), showWarnings = FALSE, recursive=TRUE)
       }
-      setwd(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_ETc_precip_DOY"))
+      setwd(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_ETc_precip_DOY"))
       stars::write_stars(stars::st_rasterize(ETC_ND_daily[[i]],dx=raster::res(aggregated[[length(aggregated)]])[1],dy=raster::res(aggregated[[length(aggregated)]])[2]), paste("ETc_precip_DOY_",i,".tif",sep=""))
 
-      if(dir.exists(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_Irrigation_DOY"))==F){
-        dir.create(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_Irrigation_DOY"), showWarnings = FALSE, recursive=TRUE)
+      if(dir.exists(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_Irrigation_DOY"))==F){
+        dir.create(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_Irrigation_DOY"), showWarnings = FALSE, recursive=TRUE)
       }
-      setwd(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_Irrigation_DOY"))
+      setwd(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_Irrigation_DOY"))
       stars::write_stars(stars::st_rasterize(irrigation_daily[[i]],dx=raster::res(aggregated[[length(aggregated)]])[1],dy=raster::res(aggregated[[length(aggregated)]])[2]), paste("Irrigation_DOY_",i,".tif",sep=""))
 
-      if(dir.exists(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_ETc_DOY"))==F){
-        dir.create(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_ETc_DOY"), showWarnings = FALSE, recursive=TRUE)
+      if(dir.exists(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_ETc_DOY"))==F){
+        dir.create(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_ETc_DOY"), showWarnings = FALSE, recursive=TRUE)
       }
-      setwd(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_ETc_DOY"))
+      setwd(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_ETc_DOY"))
       stars::write_stars(stars::st_rasterize(ETC_daily[[i]],dx=raster::res(aggregated[[length(aggregated)]])[1],dy=raster::res(aggregated[[length(aggregated)]])[2]), paste("ETc_DOY_",i,".tif",sep=""))
 
-      if(dir.exists(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_waterbalance_cumulated_DOY"))==F){
-        dir.create(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_waterbalance_cumulated_DOY"), showWarnings = FALSE, recursive=TRUE)
+      if(dir.exists(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_waterbalance_cumulated_DOY"))==F){
+        dir.create(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_waterbalance_cumulated_DOY"), showWarnings = FALSE, recursive=TRUE)
       }
-      setwd(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_waterbalance_cumulated_DOY"))
+      setwd(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_waterbalance_cumulated_DOY"))
       stars::write_stars(stars::st_rasterize(WB_cumulated[[i]],dx=raster::res(aggregated[[length(aggregated)]])[1],dy=raster::res(aggregated[[length(aggregated)]])[2]), paste("waterbalance_cumulated_DOY_",i,".tif",sep=""))
 
-      if(dir.exists(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_ETc_precip_cumulated_DOY"))==F){
-        dir.create(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_ETc_precip_cumulated_DOY"), showWarnings = FALSE, recursive=TRUE)
+      if(dir.exists(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_ETc_precip_cumulated_DOY"))==F){
+        dir.create(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_ETc_precip_cumulated_DOY"), showWarnings = FALSE, recursive=TRUE)
       }
-      setwd(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_ETc_precip_cumulated_DOY"))
+      setwd(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_ETc_precip_cumulated_DOY"))
       stars::write_stars(stars::st_rasterize(ETC_ND_cumulated[[i]],dx=raster::res(aggregated[[length(aggregated)]])[1],dy=raster::res(aggregated[[length(aggregated)]])[2]), paste("ETc_precip_cumulated_DOY_",i,".tif",sep=""))
 
-      if(dir.exists(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_Irrigation_cumulated_DOY"))==F){
-        dir.create(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_Irrigation_cumulated_DOY"), showWarnings = FALSE, recursive=TRUE)
+      if(dir.exists(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_Irrigation_cumulated_DOY"))==F){
+        dir.create(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_Irrigation_cumulated_DOY"), showWarnings = FALSE, recursive=TRUE)
       }
-      setwd(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_Irrigation_cumulated_DOY"))
+      setwd(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_Irrigation_cumulated_DOY"))
       stars::write_stars(stars::st_rasterize(irrigation_cumulated[[i]],dx=raster::res(aggregated[[length(aggregated)]])[1],dy=raster::res(aggregated[[length(aggregated)]])[2]), paste("Irrigation_cumulated_DOY_",i,".tif",sep=""))
 
-      if(dir.exists(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_ETc_cumulated_DOY"))==F){
-        dir.create(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_ETc_cumulated_DOY"), showWarnings = FALSE, recursive=TRUE)
+      if(dir.exists(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_ETc_cumulated_DOY"))==F){
+        dir.create(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_ETc_cumulated_DOY"), showWarnings = FALSE, recursive=TRUE)
       }
-      setwd(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_ETc_cumulated_DOY"))
+      setwd(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_ETc_cumulated_DOY"))
       stars::write_stars(stars::st_rasterize(ETC_cumulated[[i]],dx=raster::res(aggregated[[length(aggregated)]])[1],dy=raster::res(aggregated[[length(aggregated)]])[2]), paste("ETc_cumulated_DOY_",i,".tif",sep=""))
 
-      if(dir.exists(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_Kc_DOY"))==F){
-        dir.create(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_Kc_DOY"), showWarnings = FALSE, recursive=TRUE)
+      if(dir.exists(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_Kc_DOY"))==F){
+        dir.create(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_Kc_DOY"), showWarnings = FALSE, recursive=TRUE)
       }
-      setwd(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_Kc_DOY"))
+      setwd(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_Kc_DOY"))
       stars::write_stars(stars::st_rasterize(KC[[i]],dx=raster::res(aggregated[[length(aggregated)]])[1],dy=raster::res(aggregated[[length(aggregated)]])[2]), paste("Kc_DOY_",i,".tif",sep=""))
 
-      if(dir.exists(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_precipitation_cumulated_DOY"))==F){
-        dir.create(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_precipitation_cumulated_DOY"), showWarnings = FALSE, recursive=TRUE)
+      if(dir.exists(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_precipitation_cumulated_DOY"))==F){
+        dir.create(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_precipitation_cumulated_DOY"), showWarnings = FALSE, recursive=TRUE)
       }
-      setwd(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_precipitation_cumulated_DOY"))
+      setwd(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_precipitation_cumulated_DOY"))
       stars::write_stars(stars::st_rasterize(sf::st_as_sf(methods::as(precipitation_cumulated[[i]],"SpatialPolygonsDataFrame")),dx=raster::res(aggregated[[length(aggregated)]])[1],dy=raster::res(aggregated[[length(aggregated)]])[2]), paste("precipitation_cumulated_DOY_",i,".tif",sep=""))
 
-      if(dir.exists(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_NDVI_DOY"))==F){
-        dir.create(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_NDVI_DOY"), showWarnings = FALSE, recursive=TRUE)
+      if(dir.exists(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_NDVI_DOY"))==F){
+        dir.create(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_NDVI_DOY"), showWarnings = FALSE, recursive=TRUE)
       }
-      setwd(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_NDVI_DOY"))
+      setwd(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_NDVI_DOY"))
       stars::write_stars(stars::st_rasterize(sf::st_as_sf(methods::as(NDVI[[i]],"SpatialPolygonsDataFrame")),dx=raster::res(aggregated[[length(aggregated)]])[1],dy=raster::res(aggregated[[length(aggregated)]])[2]), paste("NDVI_DOY_",i,".tif",sep=""))
 
-      if(dir.exists(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_precipitation_DOY"))==F){
-        dir.create(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_precipitation_DOY"), showWarnings = FALSE, recursive=TRUE)
+      if(dir.exists(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_precipitation_DOY"))==F){
+        dir.create(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_precipitation_DOY"), showWarnings = FALSE, recursive=TRUE)
       }
-      setwd(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_precipitation_DOY"))
+      setwd(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_precipitation_DOY"))
       stars::write_stars(stars::st_rasterize(sf::st_as_sf(methods::as(precipitation_daily[[i]],"SpatialPolygonsDataFrame")),dx=raster::res(aggregated[[length(aggregated)]])[1],dy=raster::res(aggregated[[length(aggregated)]])[2]), paste("precipitation_DOY_",i,".tif",sep=""))
     }
     print("11 saving as GeoTIFF - done")
@@ -512,90 +504,90 @@ calcWB=function(mypath,
 
     for (i in min(DOY,na.rm=T):max(DOY,na.rm=T)){
 
-      if(dir.exists(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_waterbalance_DOY"))==F){
-        dir.create(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_waterbalance_DOY"), showWarnings = FALSE, recursive=TRUE)
+      if(dir.exists(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_waterbalance_DOY"))==F){
+        dir.create(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_waterbalance_DOY"), showWarnings = FALSE, recursive=TRUE)
       }
-      setwd(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_waterbalance_DOY"))
+      setwd(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_waterbalance_DOY"))
 
       sf::st_crs(WB_daily[[i]])=sf::st_crs(shape_site)
       sf::st_write(WB_daily[[i]],paste("waterbalance_DOY_",i,".shp",sep=""),delete_layer=T,quiet = T)
 
-      if(dir.exists(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_ETc_precip_DOY"))==F){
-        dir.create(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_ETc_precip_DOY"), showWarnings = FALSE, recursive=TRUE)
+      if(dir.exists(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_ETc_precip_DOY"))==F){
+        dir.create(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_ETc_precip_DOY"), showWarnings = FALSE, recursive=TRUE)
       }
-      setwd(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_ETc_precip_DOY"))
+      setwd(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_ETc_precip_DOY"))
       sf::st_crs(ETC_ND_daily[[i]])=sf::st_crs(shape_site)
       sf::st_write(ETC_ND_daily[[i]],paste("ETc_precip_DOY_",i,".shp",sep=""),delete_layer=T,quiet = T)
 
-      if(dir.exists(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_Irrigation_DOY"))==F){
-        dir.create(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_Irrigation_DOY"), showWarnings = FALSE, recursive=TRUE)
+      if(dir.exists(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_Irrigation_DOY"))==F){
+        dir.create(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_Irrigation_DOY"), showWarnings = FALSE, recursive=TRUE)
       }
-      setwd(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_Irrigation_DOY"))
+      setwd(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_Irrigation_DOY"))
       sf::st_crs(irrigation_daily[[i]])=sf::st_crs(shape_site)
       sf::st_write(irrigation_daily[[i]],paste("Irrigation_DOY_",i,".shp",sep=""),delete_layer=T,quiet = T)
 
-      if(dir.exists(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_ETc_DOY"))==F){
-        dir.create(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_ETc_DOY"), showWarnings = FALSE, recursive=TRUE)
+      if(dir.exists(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_ETc_DOY"))==F){
+        dir.create(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_ETc_DOY"), showWarnings = FALSE, recursive=TRUE)
       }
-      setwd(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_ETc_DOY"))
+      setwd(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_ETc_DOY"))
       sf::st_crs(ETC_daily[[i]])=sf::st_crs(shape_site)
       sf::st_write(ETC_daily[[i]],paste("ETc_DOY_",i,".shp",sep=""),delete_layer=T,quiet = T)
 
-      if(dir.exists(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_waterbalance_cumulated_DOY"))==F){
-        dir.create(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_waterbalance_cumulated_DOY"), showWarnings = FALSE, recursive=TRUE)
+      if(dir.exists(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_waterbalance_cumulated_DOY"))==F){
+        dir.create(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_waterbalance_cumulated_DOY"), showWarnings = FALSE, recursive=TRUE)
       }
-      setwd(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_waterbalance_cumulated_DOY"))
+      setwd(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_waterbalance_cumulated_DOY"))
       sf::st_crs(WB_cumulated[[i]])=sf::st_crs(shape_site)
       sf::st_write(WB_cumulated[[i]],paste("waterbalance_cumulated_DOY_",i,".shp",sep=""),delete_layer=T,quiet = T)
 
-      if(dir.exists(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_ETc_precip_cumulated_DOY"))==F){
-        dir.create(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_ETc_precip_cumulated_DOY"), showWarnings = FALSE, recursive=TRUE)
+      if(dir.exists(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_ETc_precip_cumulated_DOY"))==F){
+        dir.create(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_ETc_precip_cumulated_DOY"), showWarnings = FALSE, recursive=TRUE)
       }
-      setwd(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_ETc_precip_cumulated_DOY"))
+      setwd(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_ETc_precip_cumulated_DOY"))
       sf::st_crs(ETC_ND_cumulated[[i]])=sf::st_crs(shape_site)
       sf::st_write(ETC_ND_cumulated[[i]],paste("ETc_precip_cumulated_DOY_",i,".shp",sep=""),delete_layer=T,quiet = T)
 
-      if(dir.exists(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_Irrigation_cumulated_DOY"))==F){
-        dir.create(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_Irrigation_cumulated_DOY"), showWarnings = FALSE, recursive=TRUE)
+      if(dir.exists(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_Irrigation_cumulated_DOY"))==F){
+        dir.create(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_Irrigation_cumulated_DOY"), showWarnings = FALSE, recursive=TRUE)
       }
-      setwd(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_Irrigation_cumulated_DOY"))
+      setwd(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_Irrigation_cumulated_DOY"))
       sf::st_crs(irrigation_cumulated[[i]])=sf::st_crs(shape_site)
       sf::st_write(irrigation_cumulated[[i]],paste("Irrigation_cumulated_DOY_",i,".shp",sep=""),delete_layer=T,quiet = T)
 
-      if(dir.exists(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_ETc_cumulated_DOY"))==F){
-        dir.create(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_ETc_cumulated_DOY"), showWarnings = FALSE, recursive=TRUE)
+      if(dir.exists(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_ETc_cumulated_DOY"))==F){
+        dir.create(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_ETc_cumulated_DOY"), showWarnings = FALSE, recursive=TRUE)
       }
-      setwd(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_ETc_cumulated_DOY"))
+      setwd(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_ETc_cumulated_DOY"))
       sf::st_crs(ETC_cumulated[[i]])=sf::st_crs(shape_site)
       sf::st_write(ETC_cumulated[[i]],paste("ETc_cumulated_DOY_",i,".shp",sep=""),delete_layer=T,quiet = T)
 
-      if(dir.exists(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_Kc_DOY"))==F){
-        dir.create(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_Kc_DOY"), showWarnings = FALSE, recursive=TRUE)
+      if(dir.exists(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_Kc_DOY"))==F){
+        dir.create(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_Kc_DOY"), showWarnings = FALSE, recursive=TRUE)
       }
-      setwd(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_Kc_DOY"))
+      setwd(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_Kc_DOY"))
       sf::st_crs(KC[[i]])=sf::st_crs(shape_site)
       sf::st_write(KC[[i]],paste("Kc_DOY_",i,".shp",sep=""),delete_layer=T,quiet = T)
 
-      if(dir.exists(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_precipitation_cumulated_DOY"))==F){
-        dir.create(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_precipitation_cumulated_DOY"), showWarnings = FALSE, recursive=TRUE)
+      if(dir.exists(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_precipitation_cumulated_DOY"))==F){
+        dir.create(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_precipitation_cumulated_DOY"), showWarnings = FALSE, recursive=TRUE)
       }
-      setwd(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_precipitation_cumulated_DOY"))
+      setwd(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_precipitation_cumulated_DOY"))
       precipitation_cumulated_temp=sf::st_as_sf(methods::as(precipitation_cumulated[[i]],'SpatialPolygonsDataFrame'))
       sf::st_crs(precipitation_cumulated_temp)=sf::st_crs(shape_site)
       sf::st_write(precipitation_cumulated_temp,paste("precipitation_cumulated_DOY_",i,".shp",sep=""),delete_layer=T,quiet = T)
 
-      if(dir.exists(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_NDVI_DOY"))==F){
-        dir.create(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_NDVI_DOY"), showWarnings = FALSE, recursive=TRUE)
+      if(dir.exists(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_NDVI_DOY"))==F){
+        dir.create(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_NDVI_DOY"), showWarnings = FALSE, recursive=TRUE)
       }
-      setwd(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_NDVI_DOY"))
+      setwd(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_NDVI_DOY"))
       NDVI_temp=sf::st_as_sf(methods::as(NDVI[[i]],'SpatialPolygonsDataFrame'))
       sf::st_crs(NDVI_temp)=sf::st_crs(shape_site)
       sf::st_write(NDVI_temp,paste("NDVI_DOY_",i,".shp",sep=""),delete_layer=T,quiet = T)
 
-      if(dir.exists(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_precipitation_DOY"))==F){
-        dir.create(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_precipitation_DOY"), showWarnings = FALSE, recursive=TRUE)
+      if(dir.exists(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_precipitation_DOY"))==F){
+        dir.create(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_precipitation_DOY"), showWarnings = FALSE, recursive=TRUE)
       }
-      setwd(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_precipitation_DOY"))
+      setwd(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "shp_precipitation_DOY"))
       precipitation_daily_temp=sf::st_as_sf(methods::as(precipitation_daily[[i]],'SpatialPolygonsDataFrame'))
       sf::st_crs(precipitation_daily_temp)=sf::st_crs(shape_site)
       sf::st_write(precipitation_daily_temp,paste("precipitation_DOY_",i,".shp",sep=""),delete_layer=T,quiet = T)
@@ -608,11 +600,11 @@ calcWB=function(mypath,
 
     if(save_RDATA==TRUE){
 
-    if(dir.exists(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_")))==F){
-      dir.create(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_")), showWarnings = FALSE, recursive=TRUE)
+    if(dir.exists(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_")))==F){
+      dir.create(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_")), showWarnings = FALSE, recursive=TRUE)
     }
 
-    setwd(file.path(mypath,paste(method_NDVI,modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_")))
+    setwd(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_")))
 
     save(DOY,
          NDVI,
@@ -628,7 +620,7 @@ calcWB=function(mypath,
          WB_daily,
          WB_cumulated,
          ET0_3,
-         file=paste("WBM_",method_NDVI,"_",precip_source,"_",modeltype,"_",as.character(irrigation_efficiency),"_",as.character(last_NDVI_0),"_",as.character(target_res),".RData",sep=""))
+         file=paste("WBM_",precip_source,"_",modeltype,"_",as.character(irrigation_efficiency),"_",as.character(last_NDVI_0),"_",as.character(target_res),".RData",sep=""))
     print("13. Saving .RData-file - done")
     }
 
