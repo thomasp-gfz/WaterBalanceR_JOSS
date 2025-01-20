@@ -41,8 +41,13 @@ DownloadRadolanFromDWD=function(target_path = NA,
                              sep="")
               tf=paste(target_path,filename,sep="")
               try(utils::download.file(paste("https://opendata.dwd.de/climate_environment/CDC/grids_germany/daily/radolan/recent/bin/",filename,sep=""), tf))
-              read_dwd_raster=rdwd::projectRasterDWD(rdwd::readDWD(tf)$dat,targetproj=terra::crs(target_site))
+              #read_dwd_raster=rdwd::projectRasterDWD(rdwd::readDWD(tf)$dat,targetproj=terra::crs(target_site))
+              read_dwd_raster=rdwd::projectRasterDWD(rdwd::readDWD(tf)$dat,targetproj=terra::crs(paste("epsg:",substr(sf::st_crs(target_site)[[2]],nchar(sf::st_crs(target_site)[[2]])-6,nchar(sf::st_crs(target_site)[[2]])-2),sep=""), describe=FALSE))
               read_dwd_raster=terra::crop(read_dwd_raster,target_site,snap="out")
+
+              if(sum(dim(read_dwd_raster))!=3){
+                read_dwd_raster=terra::aggregate(read_dwd_raster)
+              }
               doy=formatC(lubridate::yday(paste(substr(start_date,1,4),"-",
                     formatC(j, width = 2, format = "d", flag = "0"),"-",
                     formatC(k, width = 2, format = "d", flag = "0"),sep="")), width = 3, format = "d", flag = "0")
@@ -54,7 +59,7 @@ DownloadRadolanFromDWD=function(target_path = NA,
         }
       }
 
-    } else if(substr(start_date,1,4)<=substr(Sys.Date(),1,4) & substr(end_date,1,4)<=substr(Sys.Date(),1,4) & substr(start_date,1,4)==substr(end_date,1,4)){
+    } else if(substr(start_date,1,4)<=substr(Sys.Date(),1,4) & substr(end_date,1,4)<=substr(Sys.Date(),1,4) & substr(start_date,1,4)==substr(end_date,1,4) & RCurl::url.exists(paste("https://opendata.dwd.de/climate_environment/CDC/grids_germany/daily/radolan/historical/bin/",as.numeric(substr(start_date,1,4)),"/",sep=""))==TRUE){
         for (i in as.numeric(substr(start_date,1,4))){
           for (j in as.numeric(substr(start_date,6,7)):as.numeric(substr(end_date,6,7))){
                 filename=paste("SF",
@@ -64,8 +69,13 @@ DownloadRadolanFromDWD=function(target_path = NA,
                                sep="")
                 tf=paste(target_path,filename,sep="")
                 try(utils::download.file(paste("https://opendata.dwd.de/climate_environment/CDC/grids_germany/daily/radolan/historical/bin/",as.numeric(substr(start_date,1,4)),"/",filename,sep=""), tf))
-                read_dwd_raster=rdwd::projectRasterDWD(rdwd::readDWD(tf)$dat,targetproj=terra::crs(target_site))
+                #read_dwd_raster=rdwd::projectRasterDWD(rdwd::readDWD(tf)$dat,targetproj=terra::crs(target_site))
+                read_dwd_raster=rdwd::projectRasterDWD(rdwd::readDWD(tf)$dat,targetproj=terra::crs(paste("epsg:",substr(sf::st_crs(target_site)[[2]],nchar(sf::st_crs(target_site)[[2]])-6,nchar(sf::st_crs(target_site)[[2]])-2),sep=""), describe=FALSE))
                 read_dwd_raster=terra::crop(read_dwd_raster,target_site,snap="out")
+
+                if(sum(dim(read_dwd_raster))!=3){
+                  read_dwd_raster=terra::aggregate(read_dwd_raster)
+                }
                 for (k in 1:terra::nlyr(read_dwd_raster)){
                   ref_date=paste(substr(read_dwd_raster[[k]]@ptr$names,1,4),"-",
                                  substr(read_dwd_raster[[k]]@ptr$names,6,7),"-",
@@ -83,5 +93,39 @@ DownloadRadolanFromDWD=function(target_path = NA,
           }
       }
 
-    } else(print("Start year and end year have to be equal."))
+    } else if(substr(start_date,1,4)<=substr(Sys.Date(),1,4) & substr(end_date,1,4)<=substr(Sys.Date(),1,4) & substr(start_date,1,4)==substr(end_date,1,4) & RCurl::url.exists(paste("https://opendata.dwd.de/climate_environment/CDC/grids_germany/daily/radolan/historical/bin/",as.numeric(substr(start_date,1,4)),"/",sep=""))==FALSE){
+      m=50
+      for (i in as.numeric(substr(start_date,3,4)):as.numeric(substr(end_date,3,4))){
+        for (j in as.numeric(substr(start_date,6,7)):as.numeric(substr(end_date,6,7))){
+          for(k in as.numeric(substr(start_date,9,10)):as.numeric(substr(end_date,9,10))){
+            for (l in 23){
+              filename=paste("raa01-sf_10000-",
+                             i,
+                             formatC(j, width = 2, format = "d", flag = "0"),
+                             formatC(k, width = 2, format = "d", flag = "0"),
+                             formatC(l, width = 2, format = "d", flag = "0"),
+                             m,
+                             "-dwd---bin.gz",
+                             sep="")
+              tf=paste(target_path,filename,sep="")
+              try(utils::download.file(paste("https://opendata.dwd.de/climate_environment/CDC/grids_germany/daily/radolan/recent/bin/",filename,sep=""), tf))
+              #read_dwd_raster=rdwd::projectRasterDWD(rdwd::readDWD(tf)$dat,targetproj=terra::crs(target_site))
+              read_dwd_raster=rdwd::projectRasterDWD(rdwd::readDWD(tf)$dat,targetproj=terra::crs(paste("epsg:",substr(sf::st_crs(target_site)[[2]],nchar(sf::st_crs(target_site)[[2]])-6,nchar(sf::st_crs(target_site)[[2]])-2),sep=""), describe=FALSE))
+              read_dwd_raster=terra::crop(read_dwd_raster,target_site,snap="out")
+
+              if(sum(dim(read_dwd_raster))!=3){
+                read_dwd_raster=terra::aggregate(read_dwd_raster)
+              }
+
+              doy=formatC(lubridate::yday(paste(substr(start_date,1,4),"-",
+                                                formatC(j, width = 2, format = "d", flag = "0"),"-",
+                                                formatC(k, width = 2, format = "d", flag = "0"),sep="")), width = 3, format = "d", flag = "0")
+              sf::st_write(sf::st_as_sf(methods::as(raster::raster(read_dwd_raster),'SpatialPolygonsDataFrame')),paste(target_path,"Radolan_",substr(start_date,1,4),"_",doy,".shp",sep=""),delete_layer=T)
+              file.remove(tf)
+              file.remove(substr(tf,1,(nchar(tf)-3)))
+            }
+          }
+        }
+      }
+      }else(print("Start year and end year have to be equal."))
 }

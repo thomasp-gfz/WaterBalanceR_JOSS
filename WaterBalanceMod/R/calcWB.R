@@ -308,6 +308,7 @@ calcWB=function(mypath,
     r_hr <- raster::raster(nrow=nrow(NDVI[[i]]), ncol=ncol(NDVI[[i]]))
     terra::crs(r_hr) <- terra::crs(NDVI[[i]])# utm
     r_hr@extent <- raster::extent(NDVI[[i]])
+    if(names(WR_precip[[i]]@data)!="layer"){names(WR_precip[[i]]@data)="layer"}
     rast_res <- terra::rasterize(WR_precip[[i]],r_hr,field="layer")
     if(precip_source=="furuno"){
       crop <- terra::crop(rast_res, NDVI[[i]],snap="out")

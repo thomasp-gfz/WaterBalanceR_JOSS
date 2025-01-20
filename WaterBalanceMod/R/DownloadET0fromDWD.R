@@ -44,11 +44,13 @@ DownloadET0fromDWD=function(target_path=NA,
   for(i in 1:raster::raster(paste(mypath,nc_List,sep="")[1],varname=Varname_ET0)@file@nbands){
     rast_WR[[i]]=raster::raster(paste(mypath,nc_List,sep="")[1],varname=Varname_ET0,band=i)
     ET0[i,2]=as.character(rast_WR[[i]]@z[[1]])
-    test_site_shp=raster::raster(test_site_shp)
+    if(class(test_site_shp)[1]!="sf"){
+      test_site_shp=sf::st_read(test_site_shp)
+    }
     rast_WR[[i]]=raster::projectRaster(rast_WR[[i]],crs=raster::crs(test_site_shp))
     raster::crs(rast_WR[[i]])=raster::crs(test_site_shp)
     cropped[[i]]=terra::crop(rast_WR[[i]],test_site_shp)
-    ET0[i,1]=cropped[[i]]@data@values
+    ET0[i,1]=mean(cropped[[i]]@data@values,na.rm=T)
     rast_WR[[i]]=NA
   }
 

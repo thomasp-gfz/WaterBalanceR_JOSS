@@ -2,6 +2,15 @@
 History
 =======
 
+0.1.6 (2025-01-20)
+------------------
+
+General settings:
+
+* Changed function for downloading ET_ref from DWD from raster::raster() to sf::st_read() and added mean() function to calculate ET_ref, if site is covered by more than one pixel.
+* Changed function for downoading Radolan data from DWD from terra::crs() to sf::st_crs() and aggregate pixels, when site covered by more than one pixel
+* correction of naming of layers in downloaded radolan files ("lyr_1" --> "layer") in script calcWB.R
+
 0.1.5 (2024-11-29)
 ------------------
 
