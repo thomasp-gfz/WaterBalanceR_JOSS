@@ -14,7 +14,7 @@ path_WR_precip=paste(mypath,"/Radolan_2023_processed_daily",sep="") #folder with
 precip_source="radolan" #choose "radolan" or "furuno". if line above is NA, then choose "radolan" to automatically download und process radolan data
 irrig_sf=sf::st_read(paste(mypath,"/Shapefile/Buffer_36m_all_interp.shp",sep="")) #Shapefile with irrigation amounts from raindancer
 irrigation_efficiency=1 #0.775 #choose irrigation efficiency. If unsure, leave at 1
-my_year=2023 #Year of interest "YYYY"
+output_year=2023 #Year of interest "YYYY"
 save_shape=TRUE #save results as shapefile?
 save_geotiff=TRUE #save results as geotiff?
 save_RDATA=TRUE #save results as RDATA?
@@ -29,7 +29,7 @@ test_wb=WaterBalanceMod::calcWB(mypath=mypath,
                last_NDVI_0=last_NDVI_0,
                ET_ref=ET_ref,
                ET_ref_dl=ET_ref_dl,
-               output_year=my_year,
+               output_year=output_year,
                path_WR_precip=path_WR_precip,
                precip_source=precip_source,
                irrig_sf=irrig_sf,

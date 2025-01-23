@@ -38,7 +38,7 @@ As a result you get a Folder named after the given configuration, e.g. "uwdw_pol
 The model needs at least NDVI data (GeoTIFF), a shapefile containing the AOI and a shapefile containing the irrigation amount. To show maps and detailed results for certain spots, you can also add a shapefile containting polygons for the spots the you are interested in. The folder "example_data" contains a set of data, that is the minimum required to run the model as well as as a script that is configured accordingly.
 
 ### NDVI data
-The NDVI data needs to be either processed from DJI Phantom 4 Multispectral UAV using Pixer4Dmapper-othomosaics and/or PlanetScope images. The naming of the files is done by the date of recording [YYYYMMDD] followed by an underscore and the abbrivation of the source, i.e. for an image that was captured by PlanetScope ("Plan") on 15th July 2023, it should be "20230715_Plan.tiff", or for an orthomosaic from DJI Phantom 4 Multispectral ("P4M1"), it should be "20230715_P4M1.tiff". The timepan of your NDVI data also defines the timespan of dates for your results.
+The NDVI data needs to be either processed from DJI Phantom 4 Multispectral UAV using Pixer4Dmapper-othomosaics and/or PlanetScope images and/or Sentinel-2 images. The naming of the files is done by the date of recording [YYYYMMDD] followed by an underscore and the abbrivation of the source, i.e. for an image that was captured by PlanetScope ("Plan") on 15th July 2023, it should be "20230715_Plan.tiff", or for an orthomosaic from DJI Phantom 4 Multispectral ("P4M1"), it should be "20230715_P4M1.tiff" or for an orthomosaic from Sentinel-2 ("Sen2"), it should be "20230715_Sen2.tiff". The timespan of your NDVI data also defines the timespan of dates for your results.
 
 ### AOI ("shape_site")
 You need a shapefile containing a polygon from your AOI
@@ -72,9 +72,6 @@ Choose irrigation efficiency, float between 0 and 1 (default). Here, irrigation 
 
 ### Target resolution ("target_res")
 Here, you can name the the target resolution of your resulting map in meter. Default = 5 m.
-
-### Method of calculating NDVI ("method_NDVI")
-Here, you can choose a method, that is used to process the input NDVI data. Just leave at "uwdw" as default.
 
 ### Method of modeling ("modeltype")
 Just leave at "poly" as default.
