@@ -1,7 +1,7 @@
 
 # WaterBalanceMod
 
-R-Package to process maps showing daily, spatially distributed water balance for starch potatoes. NDVI data needs to be derived from either preprocessed DJI Phantom 4 Multispectral or PlanetScope satellite data.
+R-Package to process maps showing daily, spatially distributed water balance for starch potatoes. NDVI data needs to be derived from either preprocessed DJI Phantom 4 Multispectral or PlanetScope satellite data or Sentinel-2 satellite data.
 
 ## Aim of Model
 
@@ -16,7 +16,7 @@ The package includes the "install_WaterBalanceMod.R" file. Open it using R or RS
 ### What do we have here?
 
 The "sample_data" folder consists of
-- a set of NDVI-sample data (folder "NDVI-Files") including DJI Phantom 4 Multispectral data (nomenclature: "[YYYYMMDD]_P4M1.tif") and PlanetScope data (nomenclature: "[YYYYMMDD]_Plan.tif"). 
+- a set of NDVI-sample data (folder "NDVI-Files") including DJI Phantom 4 Multispectral data (nomenclature: "[YYYYMMDD]_P4M1.tif") and/or PlanetScope data (nomenclature: "[YYYYMMDD]_Plan.tif") and/or Sentinel-2 data (nomenclature: "[YYYYMMDD]_Sen2.tif"). 
 - a set of shapefiles (folder "Shapefile") including "sample_2023.shp", which contains a polygon of a sample site, that spatially fits to the one from the NDVI files, and "Buffer_36m_all_interp.shp", which contains irrigation data according to the sample site, and "Buffer_5_WB.shp", which contains a set of sample spots within the AOI (polygon circles with a diameter of 5m), that we can use to get further details for the area, that these spots are covering.
 - a "DWD_ET0_2023.csv" file containing reference ET from German Weather Service, so it does not have to be downloaded
 - a Folder "Radolan_2023_processed_daily" containing daily precipitation data from German Weather Service, so it does not have to be downloaded
