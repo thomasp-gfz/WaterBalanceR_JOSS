@@ -9,6 +9,7 @@ General settings:
 
 * Changed in DownloadRadolanFromDWD.R substr-function of Spatraster names
 * Changed in DownloadRadolanFromDWD.R index for days in loop for recent year to download precipitation
+* Added Sentinel-2 as NDVI data source to Readme
 
 0.1.6 (2025-01-23)
 ------------------
