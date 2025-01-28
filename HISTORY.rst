@@ -2,6 +2,14 @@
 History
 =======
 
+0.1.7 (2025-01-28)
+------------------
+
+General settings:
+
+* Changed in DownloadRadolanFromDWD.R substr-function of Spatraster names
+* Changed in DownloadRadolanFromDWD.R index for days in loop for recent year to download precipitation
+
 0.1.6 (2025-01-23)
 ------------------
 

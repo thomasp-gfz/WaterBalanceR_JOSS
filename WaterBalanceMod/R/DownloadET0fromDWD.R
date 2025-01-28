@@ -47,8 +47,10 @@ DownloadET0fromDWD=function(target_path=NA,
     if(class(test_site_shp)[1]!="sf"){
       test_site_shp=sf::st_read(test_site_shp)
     }
-    rast_WR[[i]]=raster::projectRaster(rast_WR[[i]],crs=raster::crs(test_site_shp))
-    raster::crs(rast_WR[[i]])=raster::crs(test_site_shp)
+    #rast_WR[[i]]=raster::projectRaster(rast_WR[[i]],crs=raster::crs(test_site_shp))
+    #raster::crs(rast_WR[[i]])=raster::crs(test_site_shp)
+    rast_WR[[i]]=raster::projectRaster(rast_WR[[i]],crs=terra::crs(paste("epsg:",substr(sf::st_crs(test_site_shp)[[2]],nchar(sf::st_crs(test_site_shp)[[2]])-6,nchar(sf::st_crs(test_site_shp)[[2]])-2),sep=""), describe=FALSE))
+    terra::crs(rast_WR[[i]])=terra::crs(paste("epsg:",substr(sf::st_crs(test_site_shp)[[2]],nchar(sf::st_crs(test_site_shp)[[2]])-6,nchar(sf::st_crs(test_site_shp)[[2]])-2),sep=""), describe=FALSE)
     cropped[[i]]=terra::crop(rast_WR[[i]],test_site_shp)
     ET0[i,1]=mean(cropped[[i]]@data@values,na.rm=T)
     rast_WR[[i]]=NA
