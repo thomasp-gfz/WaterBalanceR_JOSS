@@ -2,7 +2,7 @@
 History
 =======
 
-0.1.7 (2025-01-28)
+0.1.7 (2025-02-06)
 ------------------
 
 General settings:
@@ -10,6 +10,7 @@ General settings:
 * Changed in DownloadRadolanFromDWD.R substr-function of Spatraster names
 * Changed in DownloadRadolanFromDWD.R index for days in loop for recent year to download precipitation
 * Added Sentinel-2 as NDVI data source to Readme
+* Fixed Bug in readWBplots.R(): set same CRS to buffer20.shp and NDVI-Rasterstacks as shape_site.shp
 
 0.1.6 (2025-01-23)
 ------------------

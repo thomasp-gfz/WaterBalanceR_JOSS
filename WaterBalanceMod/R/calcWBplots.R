@@ -23,8 +23,13 @@ calcWBplots=function(source_path=NA,
 
   DOY=c(min(DOY,na.rm=T),max(DOY,na.rm=T))
 
-  if(is.na(terra::crs(NDVI))==T){
-    terra::crs(NDVI)="+proj=utm +zone=33 +datum=WGS84 +units=m +no_defs"
+  crs_shape_site=sf::st_crs(shape_site)
+  buffer20=sf::st_transform(buffer20,crs_shape_site)
+  terra::crs(NDVI)=as.numeric(substr(crs_shape_site$wkt,nchar(crs_shape_site$wkt)-6,nchar(crs_shape_site$wkt)-2))
+  for (i in 1:length(precipitation_cumulated)){
+    if(class(precipitation_cumulated[[i]])[1]=="RasterLayer" | class(precipitation_cumulated[[i]])[1]=="RasterStack"){
+      terra::crs(precipitation_cumulated[[i]])=as.numeric(substr(crs_shape_site$wkt,nchar(crs_shape_site$wkt)-6,nchar(crs_shape_site$wkt)-2))
+    }
   }
 
   print("Calculating mean NDVI values...")
@@ -61,17 +66,6 @@ calcWBplots=function(source_path=NA,
     irrigation_cumulated_mean[i,1]=i
     for (j in 1:nrow(buffer20)){
       irrigation_cumulated_mean[i,j+1]=mean(irrigation_cumulated[[i]][[1]][as.data.frame(sf::st_intersects(irrigation_cumulated[[i]],sf::st_as_sf(buffer20)[j,]))$row.id],na.rm=T)
-    }
-  }
-
-  print("Calculating mean precipitation values...")
-  precipitation_cumulated_mean=data.frame(matrix(NA,length(1:max(DOY,na.rm=T)),nrow(buffer20)+1))
-  for(i in min(DOY,na.rm=T):max(DOY,na.rm=T)){
-    precipitation_cumulated_mean[i,1]=i
-    help_vec=sf::st_as_sf(methods::as(precipitation_cumulated[[i]],'SpatialPolygonsDataFrame'))
-
-    for (j in 1:nrow(buffer20)){
-      precipitation_cumulated_mean[i,j+1]=mean(help_vec[[1]][as.data.frame(sf::st_intersects(help_vec,sf::st_as_sf(buffer20)[j,]))$row.id],na.rm=T)
     }
   }
 
