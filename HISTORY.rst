@@ -2,13 +2,14 @@
 History
 =======
 
-0.1.7 (2025-02-06)
+0.1.7 (2025-02-07)
 ------------------
 
 General settings:
 
 * Changed in DownloadRadolanFromDWD.R substr-function of Spatraster names
 * Changed in DownloadRadolanFromDWD.R index for days in loop for recent year to download precipitation
+* Added in DownloadRadolanFromDWD.R calculation "read_dwd_raster=terra::aggregate(read_dwd_raster)*10" for Radolan data, that is from the former year but still noted as recent
 * Added Sentinel-2 as NDVI data source to Readme
 * Fixed Bug in readWBplots.R(): set same CRS to buffer20.shp and NDVI-Rasterstacks as shape_site.shp
 

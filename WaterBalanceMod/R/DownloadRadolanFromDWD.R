@@ -115,7 +115,7 @@ DownloadRadolanFromDWD=function(target_path = NA,
               read_dwd_raster=terra::crop(read_dwd_raster,target_site,snap="out")
 
               if(sum(dim(read_dwd_raster))!=3){
-                read_dwd_raster=terra::aggregate(read_dwd_raster)
+                read_dwd_raster=terra::aggregate(read_dwd_raster)*10
               }
 
               doy=formatC(lubridate::yday(paste(substr(start_date,1,4),"-",
