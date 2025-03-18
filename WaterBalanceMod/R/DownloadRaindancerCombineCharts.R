@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 GFZ Helmholtz Centre for Geosciences
+# SPDX-FileCopyrightText: 2025 Thomas Piernicke <thomasp@gfz.de>
+# SPDX-License-Identifier: AGPL-3.0-only
+
 #' Processes downloaded csv-files from using DownloadRaindancer() to a shapefile. The resulting shapefile is being updated every time, this script is being run.
 #' @param sourcepath Path (string) to Firefox download folder. Look it up in your Firefox browser.
 #' @param targetpath Path (string) to destination folder for downloaded csv-files from Raindancer.

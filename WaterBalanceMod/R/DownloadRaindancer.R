@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 GFZ Helmholtz Centre for Geosciences
+# SPDX-FileCopyrightText: 2025 Thomas Piernicke <thomasp@gfz.de>
+# SPDX-License-Identifier: AGPL-3.0-only
+
 #' Scrapes data from Raindancer user account for all logged sprinklers. Beware: It only downloads the last 10.000 logs, i.e. the last ~12 days. Before using, you need to install Java on your machine. It only works, when Firefox is installed on your machine.
 #' @param sourcepath Path (string) to Firefox download folder. Look it up in your Firefox browser.
 #' @param targetpath Path (string) to destination folder for downloaded csv-files from Raindancer.

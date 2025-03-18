@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 GFZ Helmholtz Centre for Geosciences
+# SPDX-FileCopyrightText: 2025 Thomas Piernicke <thomasp@gfz.de>
+# SPDX-License-Identifier: AGPL-3.0-only
+
 #' Calculate Water Balance from UAV or PlanateScope NDVI Data
 #'
 #' Calculate Water Balance using DJI Phantom 4 Multispectral or PlanetScope NDVI data.

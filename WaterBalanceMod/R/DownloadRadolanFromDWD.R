@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 GFZ Helmholtz Centre for Geosciences
+# SPDX-FileCopyrightText: 2025 Thomas Piernicke <thomasp@gfz.de>
+# SPDX-License-Identifier: AGPL-3.0-only
+
 #' Downloads and processes precipitation data from German Weather Service (DWD)
 #' @param target_path Path to download and save shapefile for every DOY within timespan of interest
 #' @param target_site Path to shapefile containing your AOI (string).

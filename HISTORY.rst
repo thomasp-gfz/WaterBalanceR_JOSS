@@ -2,6 +2,13 @@
 History
 =======
 
+0.1.8 (2025-02-20)
+------------------
+
+General settings:
+
+* Added Licens AGPL-3.0-only to package and scripts
+
 0.1.7 (2025-02-07)
 ------------------
 

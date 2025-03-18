@@ -1,3 +1,17 @@
+# SPDX-FileCopyrightText: 2025 GFZ Helmholtz Centre for Geosciences
+# SPDX-FileCopyrightText: 2025 Thomas Piernicke <thomasp@gfz.de>
+# SPDX-License-Identifier: AGPL-3.0-only
+
+#' Processes downloaded csv-files from using DownloadRaindancer() to a shapefile. The resulting shapefile is being updated every time, this script is being run.
+#' @param target_path Path (string) to destination folder for downloaded csv-files from Raindancer.
+#' @param shape_site Path (string) to shapefile of AOI
+#' @param start_date You need to define a start date
+#' @param end_date You need to define an end date
+#' @param limit Limiter (int) for number of entrys in resulting table
+#' @param cloudcover Cloud cover (int) as percent of maximum cloud coverage above AOI
+#' @return A shapefile, that contains all irrigation events, that were download. The shapefile is being opdated every time this script is being run, as long as all configuration parameter stay the same.
+#' @export
+
 DownloadSentinel2=function(target_path=NA,
                            shape_site=NA,
                            start_date=NA,

@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 GFZ Helmholtz Centre for Geosciences
+# SPDX-FileCopyrightText: 2025 Thomas Piernicke <thomasp@gfz.de>
+# SPDX-License-Identifier: AGPL-3.0-only
+
 #' Downloads and processes reference ET data from your Arable user account
 #' @param user_name string: "user_name"
 #' @param pwd DOY string: "password"

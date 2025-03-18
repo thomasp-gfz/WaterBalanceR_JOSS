@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 GFZ Helmholtz Centre for Geosciences
+# SPDX-FileCopyrightText: 2025 Thomas Piernicke <thomasp@gfz.de>
+# SPDX-License-Identifier: AGPL-3.0-only
+
 #' Create .png files from .RDATA file created by calcWB() for every DOY within given timespan (earliest till latest NDVI-capture) showing NDVI, crop coefficient, crop evapotranspiration, precipitation, irrigation and water balance. Besides, .RDATA file is created, that contains mean values for selected samples.
 #' @param source_path Path to .RDATA file (string) resulting from calcWB() function.
 #' @param plant_doy DOY (integer), when planted.

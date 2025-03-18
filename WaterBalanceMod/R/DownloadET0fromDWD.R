@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2025 GFZ Helmholtz Centre for Geosciences
+# SPDX-FileCopyrightText: 2025 Thomas Piernicke <thomasp@gfz.de>
+# SPDX-License-Identifier: AGPL-3.0-only
+
 #' Downloads and processes reference ET data from German Weather Service (DWD)
 #' @param target_path Path to download and save csv-file with reference ET for your AOI and timespan of interest
 #' @param test_site_shp Path to shapefile containing your AOI (string).
