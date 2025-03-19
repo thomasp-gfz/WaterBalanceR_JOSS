@@ -8,7 +8,7 @@ History
 General settings:
 
 * Changed package name to "WaterBalanceR"
-* Added DOI: "10.5281/zenodo.15046339"
+* Added DOI: https://doi.org/10.5281/zenodo.15046339
 
 0.1.8 (2025-02-20)
 ------------------
