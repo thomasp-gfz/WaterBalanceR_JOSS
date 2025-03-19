@@ -22,7 +22,7 @@ arable_user="username" #user name for arable account, if you choose to download 
 arable_pass="password" #password for arable account, if you choose to download reference ET from Arable
 
 ### 1. run model ----
-test_wb=WaterBalanceMod::calcWB(mypath=mypath,
+test_wb=WaterBalanceR::calcWB(mypath=mypath,
                shape_site=shape_site,
                target_res=target_res,
                modeltype=modeltype,
@@ -42,7 +42,7 @@ test_wb=WaterBalanceMod::calcWB(mypath=mypath,
 
 ############# plot procedure ----
 buffer20 = sf::st_read(paste(mypath,"/Shapefile/Buffer_5_WB.shp",sep=""))
-WaterBalanceMod::calcWBplots(source_path=paste(mypath,"/",modeltype,"_",precip_source,"_",irrigation_efficiency,"_",last_NDVI_0,"_",target_res,"/",
+WaterBalanceR::calcWBplots(source_path=paste(mypath,"/",modeltype,"_",precip_source,"_",irrigation_efficiency,"_",last_NDVI_0,"_",target_res,"/",
                                       "WBM_",precip_source,"_",modeltype,"_",irrigation_efficiency,"_",last_NDVI_0,"_",target_res,".RData",sep=""),
                     plant_doy=109,
                     buffer20=buffer20,

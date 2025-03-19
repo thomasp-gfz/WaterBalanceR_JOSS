@@ -2,6 +2,14 @@
 History
 =======
 
+0.1.9 (2025-03-19)
+------------------
+
+General settings:
+
+* Changed package name to "WaterBalanceR"
+* Added DOI: "10.5281/zenodo.15046339"
+
 0.1.8 (2025-02-20)
 ------------------
 

@@ -126,7 +126,7 @@ DownloadRaindancer=function(sourcepath,
     dir.create(file.path(paste(targetpath,"/Beregnung_Shapefile/",sep="")), showWarnings = FALSE, recursive=TRUE)
   }
 
-  WaterBalanceMod::DownloadRaindancerCombineCharts(sourcepath=paste(targetpath,"/downloaded_files/",sep=""),
+  WaterBalanceR::DownloadRaindancerCombineCharts(sourcepath=paste(targetpath,"/downloaded_files/",sep=""),
                                            targetpath=paste(targetpath,"/Beregnung_Shapefile/",sep=""),
                                            start_date=paste(substr(Sys.Date(),1,4),"-01-01",sep=""),
                                            buffer_dist=buffer_dist)

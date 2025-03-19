@@ -10,4 +10,4 @@ Developement Lead
 Contributors
 ------------
 
-*Thomas Piernicke (German Research Centre for Geosciences): Scientist/Developer
+*Thomas Piernicke (GFZ Helmholtz Centre for Geosciences): Scientist/Developer

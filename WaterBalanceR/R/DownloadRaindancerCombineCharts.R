@@ -17,7 +17,7 @@ DownloadRaindancerCombineCharts=function(sourcepath=NA,
                                          buffer_dist=36){
 
 date_folders=dir(sourcepath)
-irrigation_chart_file_path=system.file("extdata", "irrigation_tab.csv", package="WaterBalanceMod", mustWork=TRUE)
+irrigation_chart_file_path=system.file("extdata", "irrigation_tab.csv", package="WaterBalanceR", mustWork=TRUE)
 irrigation_chart=utils::read.csv(irrigation_chart_file_path,header=T,sep=",")
 rownames(irrigation_chart)=irrigation_chart[,1]
 irrigation_chart=irrigation_chart[,-1]

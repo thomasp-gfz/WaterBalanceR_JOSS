@@ -1,10 +1,11 @@
-# SPDX-FileCopyrightText: 2025 GFZ Helmholtz Centre for Geosciences
-# SPDX-FileCopyrightText: 2025 Thomas Piernicke <thomasp@gfz.de>
-# SPDX-License-Identifier: AGPL-3.0-only
+## SPDX-FileCopyrightText: 2025 GFZ Helmholtz Centre for Geosciences
+## SPDX-FileCopyrightText: 2025 Thomas Piernicke <thomasp@gfz.de>
+## SPDX-License-Identifier: AGPL-3.0-only
+## DOI: 10.5281/zenodo.15046339
 
-# WaterBalanceMod
+# WaterBalanceR
 
-R-Package to process maps showing daily, spatially distributed water balance for starch potatoes. NDVI data needs to be derived from either preprocessed DJI Phantom 4 Multispectral or PlanetScope satellite data or Sentinel-2 satellite data.
+An R-Package to process maps showing daily, spatially distributed water balance for starch potatoes. NDVI data needs to be derived from either preprocessed DJI Phantom 4 Multispectral or PlanetScope satellite data or Sentinel-2 satellite data.
 
 ## Aim of Model
 
@@ -12,7 +13,7 @@ As water is a usually limited source in agriculture, it needs to be saved as bes
 
 ## How to install the package?
 
-The package includes the "install_WaterBalanceMod.R" file. Open it using R or RStudio and change `wd <-` to your local path, where there your downloaded version of the WaterBalanceMod is saved. Run the script. When asked, if depending packages shall be installed, confirm. When everything is installed, the model should be ready to be run. To run the model you can use the attached sample data, that you can find in the subfolder "sample_data" (How to: see below). Copy that folder to your preferred working Directory first.
+The package includes the "install_WaterBalanceR.R" file. Open it using R or RStudio and change `wd <-` to your local path, where there your downloaded version of the WaterBalanceR is saved. Run the script. When asked, if depending packages shall be installed, confirm. When everything is installed, the model should be ready to be run. To run the model you can use the attached sample data, that you can find in the subfolder "sample_data" (How to: see below). Copy that folder to your preferred working Directory first.
 
 ## Using sample data
 
