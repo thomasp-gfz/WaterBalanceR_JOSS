@@ -2,6 +2,15 @@
 History
 =======
 
+0.1.11 (2025-04-14)
+------------------
+
+General settings:
+
+* Add .gitlab-ci.yml for GitLab CI-pipeline
+* New DOI: https://doi.org/10.5281/zenodo.15046338
+
+
 0.1.10 (2025-04-11)
 ------------------
 

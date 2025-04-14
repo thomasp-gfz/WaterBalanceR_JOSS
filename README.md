@@ -1,7 +1,7 @@
 ## SPDX-FileCopyrightText: 2025 GFZ Helmholtz Centre for Geosciences
 ## SPDX-FileCopyrightText: 2025 Thomas Piernicke <thomasp@gfz.de>
 ## SPDX-License-Identifier: AGPL-3.0-only
-## DOI: https://doi.org/10.5281/zenodo.15046339
+## DOI: https://doi.org/10.5281/zenodo.15046338
 
 # WaterBalanceR
 
