@@ -6,8 +6,6 @@ History
 ------------------
 
 General settings:
-
-* Add .gitlab-ci.yml for GitLab CI-pipeline
 * New DOI: https://doi.org/10.5281/zenodo.15046338
 
 
