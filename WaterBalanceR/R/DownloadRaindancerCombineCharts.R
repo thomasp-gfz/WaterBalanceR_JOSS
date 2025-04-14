@@ -6,7 +6,8 @@
 #' @param sourcepath Path (string) to Firefox download folder. Look it up in your Firefox browser.
 #' @param targetpath Path (string) to destination folder for downloaded csv-files from Raindancer.
 #' @param start_date You need to define a start date (default: 1st Jan of recent year)
-#' @param buffer_dist spray radius of sprinkler in meter (integer), default is 36.
+#' @param nozzle_diameter diameter of nozzle in mm (string, e.g. 17_8 = 17.8 mm). Default is "25_4".
+#' @param target_crs target crs
 #' @return A shapefile, that contains all irrigation events, that were download. The shapefile is being opdated every time this script is being run, as long as all configuration parameter stay the same.
 #' @export
 
@@ -14,10 +15,14 @@
 DownloadRaindancerCombineCharts=function(sourcepath=NA,
                                          targetpath=NA,
                                          start_date=paste(substr(Sys.Date(),1,4),"-01-01",sep=""),
-                                         buffer_dist=36){
+                                         nozzle_diameter="25_4",
+                                         target_crs=32633){
 
 date_folders=dir(sourcepath)
-irrigation_chart_file_path=system.file("extdata", "irrigation_tab.csv", package="WaterBalanceR", mustWork=TRUE)
+buffer_dist=system.file("extdata", paste("Nelson_SR50_Nozzle_",nozzle_diameter,"_irrigation_radius.csv",sep=""), package="WaterBalanceR", mustWork=TRUE)
+buffer_dist=utils::read.csv(buffer_dist,header=T,sep=",")
+#irrigation_chart_file_path=system.file("extdata", "irrigation_tab.csv", package="WaterBalanceR", mustWork=TRUE)
+irrigation_chart_file_path=system.file("extdata", paste("Nelson_SR50_Nozzle_",nozzle_diameter,"_irrigation_tab.csv",sep=""), package="WaterBalanceR", mustWork=TRUE)
 irrigation_chart=utils::read.csv(irrigation_chart_file_path,header=T,sep=",")
 rownames(irrigation_chart)=irrigation_chart[,1]
 irrigation_chart=irrigation_chart[,-1]
@@ -95,6 +100,9 @@ coord_tab_all_bound_distinct=stats::na.omit(coord_tab_all_bound_distinct)
 unique_sites=unique(coord_tab_all_bound_distinct$Site)
 
 site_irrigation=list(NA)
+if(nrow(coord_tab_all_bound_distinct)==0){
+  print("No irrigation data available, because no irrigation was set up, yet. Stopping script here.")
+} else {
 for (i in 1:length(unique_sites)){
   site_irrigation[[i]]=subset(coord_tab_all_bound_distinct,coord_tab_all_bound_distinct$Site==unique_sites[i])
 }
@@ -132,8 +140,8 @@ for (i in 1:length(site_irrigation)){
   site_irrigation_2[[i]]=site_irrigation_2[[i]][nrow(site_irrigation_2[[i]]):1,]
 
   #replace Comma by point
-  site_irrigation_2[[i]]$Laengengrad=gsub(",", ".", site_irrigation_2[[i]]$Laengengrad)#Komma durch Punkt ersetzen
-  site_irrigation_2[[i]]$Breitengrad=gsub(",", ".", site_irrigation_2[[i]]$Breitengrad)#Komma durch Punkt ersetzen
+  site_irrigation_2[[i]]$Laengengrad=gsub(",", ".", site_irrigation_2[[i]]$Laengengrad)#Replace , by .
+  site_irrigation_2[[i]]$Breitengrad=gsub(",", ".", site_irrigation_2[[i]]$Breitengrad)#Replace , by .
 
   #floating average of coordinates, pressure, date and time (filter)
   site_irrigation_2[[i]]$Laengengrad_mean=NA
@@ -252,17 +260,28 @@ for (i in 1:length(site_irrigation)){
   #reproject shapefiles and save as list - for interpolated data
   csv_list_new_interp_na_omit_shapes_32633[[i]]=sf::st_as_sf(site_irrigation_2_new_interp_na_omit[[i]], coords = c("Laengengrad_mean", "Breitengrad_mean"), crs = 4326)
   sf::st_crs(csv_list_new_interp_na_omit_shapes_32633[[i]])=4326
-  csv_list_new_interp_na_omit_shapes_32633[[i]]=sf::st_transform(csv_list_new_interp_na_omit_shapes_32633[[i]],32633)
+  csv_list_new_interp_na_omit_shapes_32633[[i]]=sf::st_transform(csv_list_new_interp_na_omit_shapes_32633[[i]],target_crs)
 
   #for original data
   site_irrigation_2_orig_na_omit[[i]]=subset(site_irrigation_2_orig[[i]],is.na(site_irrigation_2_orig[[i]]$Laengengrad)==F & is.na(site_irrigation_2_orig[[i]]$Breitengrad)==F &site_irrigation_2_orig[[i]]$Laengengrad != "" & site_irrigation_2_orig[[i]]$Breitengrad != "")
   csv_list_new_orig_shapes_32633[[i]]=sf::st_as_sf(site_irrigation_2_orig_na_omit[[i]], coords = c("Laengengrad", "Breitengrad"), crs = 4326)
   sf::st_crs(csv_list_new_orig_shapes_32633[[i]])=4326
-  csv_list_new_orig_shapes_32633[[i]]=sf::st_transform(csv_list_new_orig_shapes_32633[[i]],32633)
+  csv_list_new_orig_shapes_32633[[i]]=sf::st_transform(csv_list_new_orig_shapes_32633[[i]],target_crs)
 
-  #creat buffer - interpolated data
+  #create buffer - interpolated data
   Buffer_36m[[i]]=csv_list_new_interp_na_omit_shapes_32633[[i]]
-  Buffer_36m[[i]]=sf::st_buffer(Buffer_36m[[i]], dist = buffer_dist)
+  ###
+  Druck_mean=round(Buffer_36m[[i]]$Druck_mean,1)
+  Druck_mean[Druck_mean<3.5]=3.5
+  Druck_mean[Druck_mean>6]=6
+  buffer_dist_num=NA
+  for (k in 1:length(Druck_mean)){
+    buffer_dist_num[k]=buffer_dist$irrigation_radius[buffer_dist$water_pressure==Druck_mean[k]]
+  }
+
+  Buffer_36m[[i]]=sf::st_buffer(Buffer_36m[[i]], dist = buffer_dist_num)
+  ###
+  #Buffer_36m[[i]]=sf::st_buffer(Buffer_36m[[i]], dist = buffer_dist)
   Buffer_36m[[i]]$DOY=lubridate::yday(as.POSIXct(strptime(Buffer_36m[[i]]$Datum_Uhrzeit_mean,"%Y-%m-%d %H:%M:%S" )))
 
   for (j in 1:length(Buffer_36m)){
@@ -275,7 +294,19 @@ for (i in 1:length(site_irrigation)){
 
   #create buffer - original data
   Buffer_36m_orig[[i]]=csv_list_new_orig_shapes_32633[[i]]
-  Buffer_36m_orig[[i]]=sf::st_buffer(Buffer_36m_orig[[i]], dist = buffer_dist)
+  ###
+  Druck_mean=round(Buffer_36m_orig[[i]]$Bar,1)
+  Druck_mean[Druck_mean<3.5]=3.5
+  Druck_mean[Druck_mean>6]=6
+  buffer_dist_num=NA
+  for (k in 1:length(Druck_mean)){
+    buffer_dist_num[k]=buffer_dist$irrigation_radius[buffer_dist$water_pressure==Druck_mean[k]]
+  }
+
+  Buffer_36m_orig[[i]]=sf::st_buffer(Buffer_36m_orig[[i]], dist = buffer_dist_num)
+
+  ###
+  #Buffer_36m_orig[[i]]=sf::st_buffer(Buffer_36m_orig[[i]], dist = buffer_dist)
   Buffer_36m_orig[[i]]$DOY=lubridate::yday(as.POSIXct(strptime(Buffer_36m_orig[[i]]$Zeitpunkt,"%Y-%m-%d %H:%M:%S" )))
 
   for (j in 1:length(Buffer_36m_orig)){
@@ -287,11 +318,11 @@ for (i in 1:length(site_irrigation)){
   }
 
     if(nrow(Buffer_36m[[i]])>0){
-    Buffer_36m_all_shp[[i]]=sf::as(Buffer_36m[[i]], 'Spatial')
+    Buffer_36m_all_shp[[i]]=methods::as(Buffer_36m[[i]], 'Spatial')
     }
 
     if(nrow(Buffer_36m_orig[[i]])>0){
-    Buffer_36m_orig_all_shp[[i]]=sf::as(Buffer_36m_orig[[i]], 'Spatial')
+    Buffer_36m_orig_all_shp[[i]]=methods::as(Buffer_36m_orig[[i]], 'Spatial')
     }
   }
 }
@@ -329,7 +360,7 @@ suppressWarnings(sf::st_write(sf::st_as_sf(Buffer_36m_orig_all_shp_2), paste(tar
 suppressWarnings(sf::st_write(sf::st_as_sf(Buffer_36m_all_shp_2), paste(targetpath,"Buffer_36m_all_interp.shp",sep=""), driver = 'ESRI Shapefile', layer = 'Buffer_36m_all_interp', overwrite_layer = T,append=FALSE))
 
 }
-
+}
 
 
 

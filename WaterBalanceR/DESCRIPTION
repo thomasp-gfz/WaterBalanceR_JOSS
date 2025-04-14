@@ -1,7 +1,7 @@
 Package: WaterBalanceR
 Type: Package
 Title: Calculating water balance from NDVI-imagines
-Version: 0.1.9
+Version: 0.1.10
 DOI: 10.5281/zenodo.15046339
 Author: Thomas Piernicke
 Maintainer: Thomas Piernicke <thomasp@gfz-potsdam.de>
@@ -40,5 +40,11 @@ Imports: ncdf4,
           RCurl,
 	  grDevices,
 	  tidyselect,
-	  openeo
+	  openeo,
+	  magrittr,
+	  jsonlite,
+	  dplyr,
+	  readxl,
+	  scales,
+	  methods
 RoxygenNote: 7.3.2

@@ -70,7 +70,7 @@ DownloadET0fromArable=function(user_name=NA,
 
     coord_Arable=sp::SpatialPoints(coords = cbind(as.numeric(daily_Arable_list_ET0[[j]]$lon),as.numeric(daily_Arable_list_ET0[[j]]$lat)))#make spatial points out of it
     coord_Arable_sf=sf::st_as_sf(sp::SpatialPoints(coords = cbind(as.numeric(daily_Arable_list_ET0[[j]]$lon),as.numeric(daily_Arable_list_ET0[[j]]$lat))))#make sf out of sp
-    sf::st_crs(coord_Arable_sf)=4326#st_crs(shape_site)#set same crs as shapefile from site
+    sf::st_crs(coord_Arable_sf)=sf::st_crs(shape_site)#4326#set same crs as shapefile from site
     coord_Arable_sf=sf::st_transform(coord_Arable_sf,sf::st_crs(shape_site))
     coord_Arable_sf$ET0=as.numeric(daily_Arable_list_ET0[[j]]$ET0)#add ET0
     coord_Arable_sf$date=as.Date(daily_Arable_list_ET0[[j]]$date)#add date

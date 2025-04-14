@@ -48,13 +48,17 @@ calcWB=function(mypath,
 
   start.time = Sys.time()
 
+  #reading shapefiles
+  #shape_site=sf::st_read(shape_site)
+  #irrig_sf=sf::st_read(irrig_sf)
+
   target_res=target_res
   NDVI_List=list.files(paste(mypath,"/NDVI_Files/",sep=""),pattern = "\\.tif$")
   if(any(substr(NDVI_List,10,13)=="Sen2")){
     print("Sentinel-2 images cannot be processed with a resolution of res < 10 m. Set target_res = 10")
     target_res=10
   }
-  DOY=lubridate::yday(as.POSIXct(strptime(substr(NDVI_List,1,8),"%Y%m%d" ))) #fly over dates for Planet stellites
+  DOY=lubridate::yday(as.POSIXct(strptime(substr(NDVI_List,1,8),"%Y%m%d" )))
 
   #### 1.create empty lists ----
   originals=list(NA)
@@ -69,9 +73,9 @@ calcWB=function(mypath,
 
   print("1. create empty lists done - loading tiffs")
 
-  #### 2. Load Tiffs as raster and resample to given resolution ----
+  #### 2. read or calculate NDVI data, rsp. ----
   setwd(paste(mypath,"/NDVI_Files/",sep=""))
-  for (i in 1:length(NDVI_List)){#Tiffs als Raster abspeichern
+  for (i in 1:length(NDVI_List)){
     if(substr(NDVI_List[[i]],10,13)=="P4M1"){
       originals[[DOY[i]]]=raster::raster(NDVI_List[[i]])
       originals[[DOY[i]]]@data@names=as.character(DOY[i])
@@ -87,32 +91,32 @@ calcWB=function(mypath,
     }
   }
 
-  print("2. Load tiff files as raster and resample to given resolution done - resampling raster...")
+  print("2. Load tiff files as raster done - cropping and resampling...")
 
-  #### 3. resample raster to site outlines, crop and mask ----
-  for (i in 1:length(DOY)){#Croppen und maskieren der resampled Originale auf das Beregnungstransekt
+  #### 3. resample rasters to site outlines, crop, mask and resample ----
+  for (i in 1:length(DOY)){#Crop and mask to shapefile of AOI
     cropped[[DOY[i]]] = terra::crop(originals[[DOY[i]]],shape_site)
-    subsetted[[DOY[i]]] = terra::mask(cropped[[DOY[i]]], shape_site)#NDVI aus Dateien, gecropt auf Beregnungsspur
+    subsetted[[DOY[i]]] = terra::mask(cropped[[DOY[i]]], shape_site)
   }
 
   subsetted_resampled=subsetted
-  for(i in 1:(length(DOY)-1)){
+  for(i in 1:(length(DOY)-1)){#resampling
     subsetted_resampled[[DOY[i+1]]]=terra::resample(subsetted_resampled[[DOY[i+1]]], subsetted_resampled[[DOY[i]]], method='bilinear')
   }
 
-  print("3. resample raster to site outlines, crop and mask done - aggregating tiff files...")
+  print("3. Crop, mask and resampling to site outlines done - aggregating files to target resolution...")
 
-  #### 4. rescale and aggregate Tiffs to first given Tiff ----
+  #### 4. Aggregation of tiff files ----
   for (i in 1:length(DOY)){
     aggregated[[DOY[i]]]=terra::aggregate(subsetted_resampled[[DOY[i]]],fact=target_res/raster::res(subsetted_resampled[[DOY[i]]]))
     aggregated_cropped[[DOY[i]]] = terra::crop(aggregated[[DOY[i]]],shape_site)
-    aggregated_cropped_subsetted[[DOY[i]]] = terra::mask(aggregated_cropped[[DOY[i]]], shape_site)#NDVI aus Dateien, gecropt auf Beregnungsspur
+    aggregated_cropped_subsetted[[DOY[i]]] = terra::mask(aggregated_cropped[[DOY[i]]], shape_site)
     aggregated_cropped[[DOY[i]]]=NA
   }
 
   aggregated_cropped_subsetted_2=aggregated_cropped_subsetted
 
-  print("4. rescale and aggregate Tiffs to first given Tiff done - correction of NDVI from UAV/satellite to Arable standard...")
+  print("4. Aggregation of tiff files done - correction of NDVI from UAV/satellite to Arable standard...")
 
   ### 5. Correction of NDVI from UAV or Planet to Arable standard ----
   for (i in 1:length(NDVI_List)){
@@ -121,38 +125,38 @@ calcWB=function(mypath,
 
       #UAV
       if(modeltype=="linear"){
-        aggregated_cropped_subsetted_2[[DOY[i]]]=0.72137*aggregated_cropped_subsetted[[DOY[i]]]+0.17137#Korrektur NDVI auf Arable-Standard, UAV und Rohwerte
+        aggregated_cropped_subsetted_2[[DOY[i]]]=0.72137*aggregated_cropped_subsetted[[DOY[i]]]+0.17137
       } else if(modeltype=="poly"){
         aggregated_cropped_subsetted_2[[DOY[i]]]=
           (2.065*aggregated_cropped_subsetted[[DOY[i]]]^3)-
           (3.7264*aggregated_cropped_subsetted[[DOY[i]]]^2)+
           (2.7397*aggregated_cropped_subsetted[[DOY[i]]])-
-          0.1144#Korrektur NDVI auf Arable-Standard, UAV und direkte NDVI-Werte
+          0.1144
       }
     } else if(substr(NDVI_List[[i]],10,13)=="Plan"){
       NDVI_source="Planet"
 
       #Planet
       if (modeltype=="linear"){
-        aggregated_cropped_subsetted_2[[DOY[i]]]=0.83632*aggregated_cropped_subsetted[[DOY[i]]]+0.10890#Korrektur NDVI auf Arable-Standard
+        aggregated_cropped_subsetted_2[[DOY[i]]]=0.83632*aggregated_cropped_subsetted[[DOY[i]]]+0.10890
       } else if(modeltype=="poly"){
         aggregated_cropped_subsetted_2[[DOY[i]]]=
           (2.8082*aggregated_cropped_subsetted[[DOY[i]]]^3)-
           (5.2500*aggregated_cropped_subsetted[[DOY[i]]]^2)+
           (3.9685*aggregated_cropped_subsetted[[DOY[i]]])-
-          0.4851#Korrektur NDVI auf Arable-Standard, Planet und direkte NDVI-Werte
+          0.4851
       }
     } else if(substr(NDVI_List[[i]],10,13)=="Sen2"){
       NDVI_source="Sen2"
 
       #Sentinel-2
       if (modeltype=="linear"){
-        aggregated_cropped_subsetted_2[[DOY[i]]]=0.76676*aggregated_cropped_subsetted[[DOY[i]]]+0.21722#Korrektur NDVI auf Arable-Standard
+        aggregated_cropped_subsetted_2[[DOY[i]]]=0.76676*aggregated_cropped_subsetted[[DOY[i]]]+0.21722
       } else if(modeltype=="poly"){
         aggregated_cropped_subsetted_2[[DOY[i]]]=
           (-0.80349*aggregated_cropped_subsetted[[DOY[i]]]^2)+
           (1.62644*aggregated_cropped_subsetted[[DOY[i]]])+
-          0.03727#Korrektur NDVI auf Arable-Standard, Planet und direkte NDVI-Werte
+          0.03727
       }
     }
   }
@@ -197,7 +201,7 @@ calcWB=function(mypath,
   print("6. Interpolation of cropped NDVI-sets and saving of daily values done - derive reference ET...")
 
   #### 7. derive ET_ref ----
-  #ET0 aus DWD-Daten
+  #ET0 from DWD-Daten
 
   if(length(ET_ref)!=1){
     ET_ref=ET_ref[,-1]
@@ -229,13 +233,13 @@ calcWB=function(mypath,
   ET0_3[ET0_3[,1]=="NaN",1]=NA
   ET0_3[,1]=zoo::na.approx(ET0_3[,1],na.rm=F)
 
-  print("7. derive ET_ref done - calculate precipitation...")
+  print("7. derive reference ET done - calculate precipitation...")
 
     #### 8.1 calculation of precipitation from FURUNO ----
     if(precip_source=="furuno"){
       WR_precip_List=list.files(path=path_WR_precip,pattern = "\\.shp$")
-      WR_precip=vector(mode='list', length=366)#Liste mit Werten je Tag
-      precipitation_daily=vector(mode='list', length=366)#Liste mit Werten je Tag
+      WR_precip=vector(mode='list', length=366)
+      precipitation_daily=vector(mode='list', length=366)
       for (i in 1:length(WR_precip)){
         WR_precip[[i]]=NA
         precipitation_daily[[i]]=NA
@@ -264,14 +268,14 @@ calcWB=function(mypath,
       }
 
       WR_precip_List=list.files(path=path_WR_precip,pattern = "\\.shp$")
-      WR_precip=vector(mode='list', length=366)#Liste mit Werten je Tag
-      precipitation_daily=vector(mode='list', length=366)#Liste mit Werten je Tag
+      WR_precip=vector(mode='list', length=366)
+      precipitation_daily=vector(mode='list', length=366)#
       for (i in 1:length(WR_precip)){
         WR_precip[[i]]=NA
         precipitation_daily[[i]]=NA
       }
 
-      for (i in min(substr(WR_precip_List,14,16)):max(substr(WR_precip_List,14,16))){#i=137:237
+      for (i in min(substr(WR_precip_List,14,16)):max(substr(WR_precip_List,14,16))){
         WR_precip[[i]]=try(raster::shapefile(paste(path_WR_precip,"/",WR_precip_List[substr(WR_precip_List,14,16)==formatC(i, width = 3, format = "d", flag = "0")],sep="")))
         if (class(WR_precip[[i]])!="SpatialPolygonsDataFrame"){
           WR_precip[[i]]=try(raster::shapefile(paste(path_WR_precip,"/",WR_precip_List[substr(WR_precip_List,14,16)==formatC(min(substr(WR_precip_List,14,16)), width = 3, format = "d", flag = "0")],sep="")))
@@ -290,14 +294,12 @@ calcWB=function(mypath,
     aspect_KC=1.4535593
     y_Kc=-0.1686968
 
-  KC=vector(mode='list', length=max(DOY,na.rm=T))#Kc-Wert
+  KC=vector(mode='list', length=max(DOY,na.rm=T))
   WB_daily=list(NA)
   ETC_ND_daily=list(NA)
-  irrigation_daily=list(NA)#Beregnung
+  irrigation_daily=list(NA)
   ETC_daily=list(NA)
   irrigation=list(NA)
-  aggregated_cropped_subsetted_13_BoFeu_rel=list(NA)
-  aggregated_cropped_subsetted_13_BoFeu_abs=list(NA)
 
   for (i in min(DOY,na.rm=T):max(DOY,na.rm=T)){
     subs_help_DOY=subset(ET0_3,ET0_3$DOY==i)
@@ -310,7 +312,7 @@ calcWB=function(mypath,
     print(i)
 
     r_hr <- raster::raster(nrow=nrow(NDVI[[i]]), ncol=ncol(NDVI[[i]]))
-    terra::crs(r_hr) <- terra::crs(NDVI[[i]])# utm
+    terra::crs(r_hr) <- terra::crs(NDVI[[i]])
     r_hr@extent <- raster::extent(NDVI[[i]])
     if(names(WR_precip[[i]]@data)!="layer"){names(WR_precip[[i]]@data)="layer"}
     rast_res <- terra::rasterize(WR_precip[[i]],r_hr,field="layer")
@@ -322,9 +324,9 @@ calcWB=function(mypath,
     }
     precipitation_daily[[i]] <- terra::mask(crop, NDVI[[i]])
 
-    if(mean(WR_precip[[i]]@data$layer,na.rm=T)==0){#Wenn an diesem Tag kein Niederschlag erfolgt...
-      aggregated_cropped_subsetted_9_help=((aspect_KC*(NDVI[[i]])+y_Kc)*subs_help_DOY[1,1])*(-1)#+BoFeu_Abs#ETC ohne Niederschlag
-    } else{ aggregated_cropped_subsetted_9_help=precipitation_daily[[i]]+(((aspect_KC*(NDVI[[i]])+y_Kc)*subs_help_DOY[1,1])*(-1))#+BoFeu_Abs
+    if(mean(WR_precip[[i]]@data$layer,na.rm=T)==0){
+      aggregated_cropped_subsetted_9_help=((aspect_KC*(NDVI[[i]])+y_Kc)*subs_help_DOY[1,1])*(-1)
+    } else{ aggregated_cropped_subsetted_9_help=precipitation_daily[[i]]+(((aspect_KC*(NDVI[[i]])+y_Kc)*subs_help_DOY[1,1])*(-1))
     }
 
     aggregated_cropped_subsetted_10=sf::st_as_sf(methods::as(aggregated_cropped_subsetted_9_help,'SpatialPolygonsDataFrame'))
@@ -333,51 +335,48 @@ calcWB=function(mypath,
     aggregated_cropped_subsetted_10_ETC[[1]]=((aspect_KC*(aggregated_cropped_subsetted_10_ETC[[1]])+y_Kc)*subs_help_DOY[1,1])*(-1)#nur ETC
     KC[[i]]=sf::st_as_sf(methods::as(NDVI[[i]],'SpatialPolygonsDataFrame'))
     KC[[i]][[1]]=aspect_KC*KC[[i]][[1]]+y_Kc
-    WB_daily[[i]]=aggregated_cropped_subsetted_10#ETC + ND + (spaeter) Beregnung
-    ETC_ND_daily[[i]]=aggregated_cropped_subsetted_10#ETC + ND (ohne Beregnung)
-    ETC_daily[[i]]=aggregated_cropped_subsetted_10_ETC#ETC ohne Nd und Beregnung
-    if(length(subs_beregnung$DOY)!=0){#Wenn an diesem Tag beregnet wird,...
-      for (j in 1:nrow(aggregated_cropped_subsetted_10)){#...pr?fe f?r jedes Pixel, ob...
-        if(length(sf::st_intersects(aggregated_cropped_subsetted_10[j,],sf::st_as_sf(subs_beregnung))[[1]])!=0){#...an diesem Tag f?r dieses Pixel eine Beregnung stattfindet
-          if(length(sf::st_intersects(aggregated_cropped_subsetted_10[j,],sf::st_as_sf(subs_beregnung2))[[1]])!=0){#...und ob am darauffolgenden Tag eine Beregnung stattfindet.
-            intersec=sf::st_intersects(aggregated_cropped_subsetted_10[j,],sf::st_as_sf(subs_beregnung))#Schnittpunkte des Pixels mit Beregnungsradien f?r diesen Tag
-            intersec2=sf::st_intersects(aggregated_cropped_subsetted_10[j,],sf::st_as_sf(subs_beregnung2))#Schnittpunkte des Pixels mit den Beregnungsradien des darauffolgenden Tages
+    WB_daily[[i]]=aggregated_cropped_subsetted_10
+    ETC_ND_daily[[i]]=aggregated_cropped_subsetted_10
+    ETC_daily[[i]]=aggregated_cropped_subsetted_10_ETC
+    if(length(subs_beregnung$DOY)!=0){#If there is an irrigation event on this day...
+      for (j in 1:nrow(aggregated_cropped_subsetted_10)){#...check for every pixel, if...
+        if(length(sf::st_intersects(aggregated_cropped_subsetted_10[j,],sf::st_as_sf(subs_beregnung))[[1]])!=0){#...on this day for this pixel there is an irrigation event
+          if(length(sf::st_intersects(aggregated_cropped_subsetted_10[j,],sf::st_as_sf(subs_beregnung2))[[1]])!=0){#...and if there is an irrigation event on the following day.
+            intersec=sf::st_intersects(aggregated_cropped_subsetted_10[j,],sf::st_as_sf(subs_beregnung))#overlapping points of pixel with irrigation radius for this day
+            intersec2=sf::st_intersects(aggregated_cropped_subsetted_10[j,],sf::st_as_sf(subs_beregnung2))#overlapping points of pixel with irrigation radius for the following day
             aggregated_cropped_subsetted_10[j,][[1]]=aggregated_cropped_subsetted_10[j,][[1]]+mean(c(sf::st_as_sf(subs_beregnung)[intersec[[1]],]$Brg_GPS,sf::st_as_sf(subs_beregnung2)[intersec2[[1]],]$Brg_GPS),na.rm=T)*irrigation_efficiency#Berechne Mittlwert der Beregnung auf dieses Pixel von diesem und n?chsten Tag
-          }else{#Wenn aber nur heute eine Beregnung stattfindet (nicht morgen)
-            if(length(sf::st_intersects(aggregated_cropped_subsetted_10[j,],sf::st_as_sf(subs_beregnung0))[[1]])==0){#Pr?fe, ob gestern eine Beregnung stattfand
-              intersec=sf::st_intersects(aggregated_cropped_subsetted_10[j,],sf::st_as_sf(subs_beregnung))#Schnittpunkte des Pixels mit Beregnungsradien von heute
-              aggregated_cropped_subsetted_10[j,][[1]]=aggregated_cropped_subsetted_10[j,][[1]]+mean(sf::st_as_sf(subs_beregnung)[intersec[[1]],]$Brg_GPS,na.rm=T)*irrigation_efficiency#Berechne Beregnung auf dieses Pixel von heute
+          }else{#But if there is an irrigation event only today and not tomorrow...
+            if(length(sf::st_intersects(aggregated_cropped_subsetted_10[j,],sf::st_as_sf(subs_beregnung0))[[1]])==0){#...check if there was an irrigation on yesterday
+              intersec=sf::st_intersects(aggregated_cropped_subsetted_10[j,],sf::st_as_sf(subs_beregnung))#overlapping points of pixel with irrigation radius from today
+              aggregated_cropped_subsetted_10[j,][[1]]=aggregated_cropped_subsetted_10[j,][[1]]+mean(sf::st_as_sf(subs_beregnung)[intersec[[1]],]$Brg_GPS,na.rm=T)*irrigation_efficiency#Calculate irrigation amount for this pixel for today
             }
           }
         }
       }
 
-      WB_daily[[i]]=aggregated_cropped_subsetted_10#ETC + ND + Beregnung
+      WB_daily[[i]]=aggregated_cropped_subsetted_10
       irrigation_daily[[i]]=WB_daily[[i]]
-      irrigation_daily[[i]][[1]]=irrigation_daily[[i]][[1]] - ETC_ND_daily[[i]][[1]]#Beregnung
-      ETC_daily[[i]]=aggregated_cropped_subsetted_10_ETC#ETC
+      irrigation_daily[[i]][[1]]=irrigation_daily[[i]][[1]] - ETC_ND_daily[[i]][[1]]
+      ETC_daily[[i]]=aggregated_cropped_subsetted_10_ETC
     }
   }
-  #return(ETC_daily)
 
   print("9 WB modelling done.")
 
-  #Liste nur mit Beregnung erstellen
+  #List with irrigation amounts
   irrigation_daily=WB_daily
   for (i in min(DOY,na.rm=T):max(DOY,na.rm=T)){
-    irrigation_daily[[i]][[1]]=WB_daily[[i]][[1]] - ETC_ND_daily[[i]][[1]]#Beregnung
+    irrigation_daily[[i]][[1]]=WB_daily[[i]][[1]] - ETC_ND_daily[[i]][[1]]
   }
-
-
 
   #### 10. cumulating daily values ----
 
-  print("10. cumulating daily values to latest date...")
+  print("10. Cumulating daily values to latest date...")
 
-  WB_cumulated=WB_daily#ETC + ND + Beregnung
-  ETC_ND_cumulated=ETC_ND_daily#ETC + ND
-  irrigation_cumulated=irrigation_daily#Beregnung
-  ETC_cumulated=ETC_daily#Nur ETC
+  WB_cumulated=WB_daily
+  ETC_ND_cumulated=ETC_ND_daily
+  irrigation_cumulated=irrigation_daily
+  ETC_cumulated=ETC_daily
   precipitation_cumulated=precipitation_daily
   for (i in (1+min(DOY,na.rm=T)):max(DOY,na.rm=T)){
     WB_cumulated[[i]][[1]]=WB_cumulated[[i]][[1]]+WB_cumulated[[i-1]][[1]]
@@ -417,7 +416,6 @@ calcWB=function(mypath,
   print("11. saving as GeoTIFF...")
 
   if(save_geotiff==TRUE){
-    #results_list_shp=list(NA)
     for (i in min(DOY,na.rm=T):max(DOY,na.rm=T)){
 
       if(dir.exists(file.path(mypath,paste(modeltype,precip_source,irrigation_efficiency,last_NDVI_0,target_res,sep="_"), "geotiff_waterbalance_DOY"))==F){
@@ -505,7 +503,6 @@ calcWB=function(mypath,
   print("12. saving as Shapefile...")
 
   if(save_shape==TRUE){
-    #results_list_shp=list(NA)
 
     for (i in min(DOY,na.rm=T):max(DOY,na.rm=T)){
 
@@ -625,7 +622,7 @@ calcWB=function(mypath,
          WB_daily,
          WB_cumulated,
          ET0_3,
-         file=paste("WBM_",precip_source,"_",modeltype,"_",as.character(irrigation_efficiency),"_",as.character(last_NDVI_0),"_",as.character(target_res),".RData",sep=""))
+         file=paste("WBR_",precip_source,"_",modeltype,"_",as.character(irrigation_efficiency),"_",as.character(last_NDVI_0),"_",as.character(target_res),".RData",sep=""))
     print("13. Saving .RData-file - done")
     }
 

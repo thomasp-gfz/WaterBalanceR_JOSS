@@ -2,6 +2,18 @@
 History
 =======
 
+0.1.10 (2025-04-11)
+------------------
+
+General settings:
+
+* Correction of documentation within scripts
+* Renaming Sentinel-2 files after downloading according to needs for running the water balance model
+* Add packages magrittr, jsonlite, dplyr, readxl, scales, methods to dependencies 
+* Add dynamic irrigation calculation, depending on nozzle diameter and water pressure
+* New DOI: https://doi.org/10.5281/zenodo.15209967
+
+
 0.1.9 (2025-03-19)
 ------------------
 

@@ -2,6 +2,8 @@
 # SPDX-FileCopyrightText: 2025 Thomas Piernicke <thomasp@gfz.de>
 # SPDX-License-Identifier: AGPL-3.0-only
 
+#' Create .png files for results at a first glance
+#'
 #' Create .png files from .RDATA file created by calcWB() for every DOY within given timespan (earliest till latest NDVI-capture) showing NDVI, crop coefficient, crop evapotranspiration, precipitation, irrigation and water balance. Besides, .RDATA file is created, that contains mean values for selected samples.
 #' @param source_path Path to .RDATA file (string) resulting from calcWB() function.
 #' @param plant_doy DOY (integer), when planted.
@@ -14,6 +16,10 @@ calcWBplots=function(source_path=NA,
                              plant_doy=NA,
                              buffer20=NA,
                              shape_site=NA){
+
+  #reading shapefiles:
+  #buffer20=sf::st_read(buffer20)
+  #shape_site=sf::st_read(shape_site)
 
   source_path_name=paste(strsplit(source_path,"/")[[1]][1:(length(strsplit(source_path,"/")[[1]])-1)],collapse="/")
   source_file_name=strsplit(source_path,"/")[[1]][length(strsplit(source_path,"/")[[1]])]

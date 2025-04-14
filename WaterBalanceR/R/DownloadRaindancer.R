@@ -10,9 +10,11 @@
 #' @param user Raindancer user account
 #' @param pass Raindancer password
 #' @param waitfor time to wait for loading websites. The quicker your computer and internet connection, the less it can be (integer). Default is 3.
-#' @param buffer_dist spray radius of sprinkler in meter (integer), default is 36.
+#' @param nozzle_diameter diameter of nozzle in mm (string, e.g. 17_8 = 17.8 mm). Default is "25_4".
+#' @param target_crs target crs
 #' @return csv file for all irrigation events of all sprinklers, that are logged in Raindancer Account.
 #' @export
+#' @importFrom magrittr %>%
 
 DownloadRaindancer=function(sourcepath,
                targetpath,
@@ -21,7 +23,8 @@ DownloadRaindancer=function(sourcepath,
                user,
                pass,
                waitfor=3,
-               buffer_dist=36){
+               nozzle_diameter="25_4",
+               target_crs=32633){
 
 
   driver=RSelenium::rsDriver(browser="firefox",port=port,chromever = NULL, verbose=F, check=F)
@@ -54,6 +57,7 @@ DownloadRaindancer=function(sourcepath,
   get_name_rain=remDr$findElement(using="xpath", value="//*[@id='ctl00_CPH_MainContent_IrrigatorGrid_GridData']")
   get_name_rain_tab = rvest::read_html(get_name_rain$getElementAttribute('innerHTML')[[1]]) %>%
     rvest::html_table() %>% .[[1]]
+  #get_name_rain_tab=rvest::html_table(rvest::read_html(get_name_rain$getElementAttribute('innerHTML')[[1]]))[[1]]
 
   regner_tabelle=as.data.frame(matrix(NA,nrow(get_name_rain_tab),3))
   names(regner_tabelle)=c("Regner","ID","GUID")
@@ -129,7 +133,8 @@ DownloadRaindancer=function(sourcepath,
   WaterBalanceR::DownloadRaindancerCombineCharts(sourcepath=paste(targetpath,"/downloaded_files/",sep=""),
                                            targetpath=paste(targetpath,"/Beregnung_Shapefile/",sep=""),
                                            start_date=paste(substr(Sys.Date(),1,4),"-01-01",sep=""),
-                                           buffer_dist=buffer_dist)
+                                           nozzle_diameter=nozzle_diameter,
+                                           target_crs=target_crs)
 }
 
 

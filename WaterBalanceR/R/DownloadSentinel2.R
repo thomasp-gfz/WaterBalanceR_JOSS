@@ -40,7 +40,6 @@ dates_cloudcover=items$features.properties$datetime
 
 ################
 #download all NDVI-data from startdate to enddate
-#setwd("Z:/GFZ/00R-Scripte/API_Sentinel_2/")
 connection = openeo::connect(host = "https://openeo.dataspace.copernicus.eu")
 openeo::login()
 processes_list=openeo::list_processes()
@@ -86,7 +85,18 @@ while(1==1){
 delete_files=invisible(list.files(target_path)[!list.files(target_path) %in% unique(paste("openEO_",substr(dates_cloudcover,1,10),"Z.tif",sep=""))])
 file.remove(paste(target_path,delete_files,sep="/"))
 
-print("Sentinel-2 Download successfully finished.")
+# rename files fitting the format needed to run the wb_calc.R
+Sys.sleep(10)
+if (length(list.files(target_path)>0)){
+for(i in 1:length(list.files(target_path))){
+  file.rename(list.files(target_path,full.names=T)[i],
+              paste(target_path,substr(list.files(target_path)[i],8,11),
+                    substr(list.files(target_path)[i],13,14),
+                    substr(list.files(target_path)[i],16,17),
+                    "_Sen2.tif",sep=""))
+}
+}
+print(paste("Sentinel-2 Download successfully finished. Downloaded ",length(list.files(target_path)), " files.",sep=""))
 }
 
 
