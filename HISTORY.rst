@@ -2,6 +2,12 @@
 History
 =======
 
+0.1.12 (2025-06-03)
+------------------
+
+General settings:
+* Conversion of date-time vector in DownloadRaindancerCombineCharts.R
+
 0.1.11 (2025-04-14)
 ------------------
 

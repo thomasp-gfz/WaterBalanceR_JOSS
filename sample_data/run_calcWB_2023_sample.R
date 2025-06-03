@@ -47,7 +47,7 @@ test_wb=WaterBalanceR::calcWB(mypath=mypath,
 ### 2. plot procedure ----
 buffer20 = paste(mypath,"/Shapefile/Buffer_5_WB.shp",sep="")
 WaterBalanceR::calcWBplots(source_path=paste(mypath,"/",modeltype,"_",precip_source,"_",irrigation_efficiency,"_",last_NDVI_0,"_",target_res,"/",
-                                      "WBM_",precip_source,"_",modeltype,"_",irrigation_efficiency,"_",last_NDVI_0,"_",target_res,".RData",sep=""),
+                                      "WBR_",precip_source,"_",modeltype,"_",irrigation_efficiency,"_",last_NDVI_0,"_",target_res,".RData",sep=""),
                     plant_doy=109,
                     buffer20=buffer20,
                     shape_site=shape_site)

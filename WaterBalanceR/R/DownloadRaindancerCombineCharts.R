@@ -54,6 +54,7 @@ for (j in 1:length(date_folders)){
     coord_tab_temp=subset(coord_tab_temp,coord_tab_temp$Status!="Regner hat keinen Einsatz")
     coord_tab_temp=subset(coord_tab_temp,coord_tab_temp$Status!="Regner sendet nicht mehr")
     coord_tab_temp=subset(coord_tab_temp,coord_tab_temp$bar>=1)
+    coord_tab_temp$Zeitpunkt=as.POSIXct(coord_tab_temp$Zeitpunkt, format = "%d.%m.%Y %H:%M:%OS")
     coord_tab_temp=subset(coord_tab_temp,coord_tab_temp$Zeitpunkt>=start_date)
 
     application_protocol=readxl::read_excel(paste(sourcepath,max(date_folders),"/",application_protocol_file[i],sep=""),.name_repair = "unique_quiet")
