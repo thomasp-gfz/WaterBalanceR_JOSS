@@ -10,7 +10,6 @@ try(dev.off())
 mypath="C:/Users/username/Desktop/WaterBalanceR_Git/WaterbalanceR/sample_data" #replace example path with your local directory
 shape_site = paste(mypath,"/Shapefile/sample_2023.shp",sep="") #path to shapefile of AOI
 target_res=5 #spatial resolution of results, must be >=5
-modeltype="poly" #poly or linear, leave at poly
 last_NDVI_0=132 #last day with NDVI==0, so with no visible vegetation
 ET_ref=read.csv(paste(mypath,"/DWD_ET0_2023.csv",sep=""),sep=",") #csv file with with daily reference ET or leave at NA. If NA, then...
 ET_ref_dl="DWD" #...choose from "DWD" or "Arable" to download reference ET
@@ -29,7 +28,6 @@ arable_pass="password" #password for arable account, if you choose to download r
 test_wb=WaterBalanceR::calcWB(mypath=mypath,
                shape_site=shape_site,
                target_res=target_res,
-               modeltype=modeltype,
                last_NDVI_0=last_NDVI_0,
                ET_ref=ET_ref,
                ET_ref_dl=ET_ref_dl,
@@ -46,8 +44,8 @@ test_wb=WaterBalanceR::calcWB(mypath=mypath,
 
 ### 2. plot procedure ----
 buffer20 = paste(mypath,"/Shapefile/Buffer_5_WB.shp",sep="")
-WaterBalanceR::calcWBplots(source_path=paste(mypath,"/",modeltype,"_",precip_source,"_",irrigation_efficiency,"_",last_NDVI_0,"_",target_res,"/",
-                                      "WBR_",precip_source,"_",modeltype,"_",irrigation_efficiency,"_",last_NDVI_0,"_",target_res,".RData",sep=""),
+WaterBalanceR::calcWBplots(source_path=paste(mypath,"/",precip_source,"_",irrigation_efficiency,"_",last_NDVI_0,"_",target_res,"/",
+                                      "WBR_",precip_source,"_",irrigation_efficiency,"_",last_NDVI_0,"_",target_res,".RData",sep=""),
                     plant_doy=109,
                     buffer20=buffer20,
                     shape_site=shape_site)

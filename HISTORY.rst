@@ -2,6 +2,14 @@
 History
 =======
 
+0.1.13 (2025-07-16)
+------------------
+
+General settings:
+* New models in calcWB.R
+* removed possibility to choose "modeltype" (linear or poly) in calcWB.R and in sample data set
+
+
 0.1.12 (2025-06-03)
 ------------------
 

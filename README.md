@@ -34,7 +34,7 @@ The script can be subdivided into three parts:
 - 2nd: run the actual model (`calcWB()`) to create maps as shapefiles and/or geotiffs showing the waterbalance and other results for your AOI.
 - 3rd: create plots, that show additional information about the sample spots within the AOI, that you are interested in (shapefile: "Buffer_5_WB.shp").To get These resulting maps, you need to run the "calcWBplots()" after using the resulting .RData - file from "calcWB()".
 
-As a result you get a Folder named after the given configuration, e.g. "uwdw_poly_radolan_1_132_5", which means "uwdw" = method of calculation of NDVI, "poly" = method of modeling, "radolan" = source of precipitation, "1" = irrigation Efficiency, "132" = last day of NDVI being 0, "5" = spatial Resolution in meter.
+As a result you get a Folder named after the given configuration, e.g. "radolan_1_132_5", which means "radolan" = source of precipitation, "1" = irrigation Efficiency, "132" = last day of NDVI being 0, "5" = spatial Resolution in meter.
 
 
 ## Input data and configuration - further details
@@ -76,9 +76,6 @@ Choose irrigation efficiency, float between 0 and 1 (default). Here, irrigation 
 
 ### Target resolution ("target_res")
 Here, you can name the the target resolution of your resulting map in meter. Default = 5 m.
-
-### Method of modeling ("modeltype")
-Just leave at "poly" as default.
 
 ### Last day with NDVI = 0 ("last_NDVI_0")
 Here you need to enter the DOY, when no plants were last visible.
