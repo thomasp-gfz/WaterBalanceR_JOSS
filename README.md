@@ -103,25 +103,26 @@ Here it is necessary, that either Arable Mark 2 or Arable Mark 3 Ground stations
 
 ### Table 1: Parameters, that need to be configured within the main script “run_calcWB.R” to run calculation of water balance.
 
-Parameter              Description                                      Data Format (or range)     Default value   Alternatives
---------------------- ------------------------------------------------ ------------------------- --------------- --------------------
-mypath                 Path to raw data                                 str                        NA              -
-shape_site             Boundaries of AOI                                shapefile                  NA              -
-target_res             Target resolution of resulting map               integer                    5               -
-method_NDVI            Method of NDVI calculation                       str                        "uwdw"          "direct"
-modeltype              Type of modeling NDVI                            str                        "poly"          "linear"
-last_NDVI_0            Last day before visible germination              integer                    NA              -
-ET_ref                 Chart with daily reference ET values             csv-chart                  NA              -
-ET_ref_dl              Download daily reference ET if ET_ref is NA     str                        "DWD"           "Arable"
-path_WR_precip         Path to precipitation data                       str                        NA              -
-precip_source          Download precip. if path_WR_precip is NA         str                        "radolan"       "furuno"
-irrig_sf               Path to shapefile with irrigation buffers        str                        NA              -
-irrigation_efficiency  Irrigation efficiency (method dependent)         integer                    1               < 1
-save_shape             Save results as daily shapefiles?                TRUE / FALSE               TRUE            -
-save_geotiff           Save results as daily geotiffs?                  TRUE / FALSE               TRUE            -
-save_RDATA             Save results as RDATA?                           TRUE / FALSE               TRUE            -
-arable_user            Username for Arable account (if available)       str                        NA              -
-arable_pass            Password for Arable account (if available)       str                        NA              -
+| Parameter           | Description                                         | Data Format (or range) | Default values | Alternatives                                    |
+|---------------------|-----------------------------------------------------|-----------------------|----------------|------------------------------------------------|
+| mypath              | Path to raw data                                    | str                   | NA             |                                                |
+| shape_site          | Boundaries of AOI                                   | shapefile             | NA             |                                                |
+| target_res          | Target resolution of resulting map                  | integer               | 5              |                                                |
+| method_NDVI         | Method of NDVI calculation                           | str                   | "uwdw"         | "direct"                                       |
+| modeltype           | Type of modeling NDVI                               | str                   | "poly"         | "linear"                                       |
+| last_NDVI_0         | Last day before visible germination                 | integer               | NA             |                                                |
+| ET_ref              | Chart with daily reference ET values                | csv-chart             | NA             |                                                |
+| ET_ref_dl           | If “ET_ref” is NA, one can download daily ET       | str                   | "DWD"          | "Arable"                                       |
+| path_WR_precip      | Path to precipitation data                           | str                   | NA             |                                                |
+| precip_source       | If “path_WR_precip” is NA, download precipitation   | str                   | "radolan"      | "furuno"                                       |
+| irrig_sf            | Path to shapefile with irrigation buffers           | str                   | NA             |                                                |
+| irrigation_efficiency| Irrigation efficiency depending on irrigation method| integer               | 1              | < 1                                            |
+| save_shape          | Save results as daily shapefiles?                    | TRUE / FALSE          | TRUE           |                                                |
+| save_geotiff        | Save results as daily geotiffs?                      | TRUE / FALSE          | TRUE           |                                                |
+| save_RDATA          | Save results as RDATA?                               | TRUE / FALSE          | TRUE           |                                                |
+| arable_user         | User name for Arable account, if available           | str                   | NA             |                                                |
+| arable_pass         | Password for Arable account, if available             | str                   | NA             |                                                |
+
 
 ## Detailed description of single modules
 
@@ -133,95 +134,94 @@ To calculate the daily ETc next to the crop coefficient the according daily ET0 
 
 #### Table 2: Parameters to run “DownloadET0fromDWD.R” to download reference evapotranspiration from German Weather Service (DWD) for the given site and timespan.
 
-Parameter           Description                                 Data Format (or range)     Default value   Alternatives
------------------- ------------------------------------------- ------------------------- --------------- ----------------
-target_path         Target path of processed reference ET      str                        NA              -
-test_site_shape     Boundaries of AOI                          shapefile                  NA              -
-target_year         Year of interest                           str ("2021")               NA              -
-timeout             Patience of system to not interrupt download integer                  1000            > 1
+| Parameter       | Description                             | Data Format (or range) | Default value | Alternatives |
+|-----------------|---------------------------------------|-----------------------|---------------|--------------|
+| target_path     | Target path of processed reference ET | str                   | NA            | -            |
+| test_site_shape | Boundaries of AOI                      | shapefile             | NA            | -            |
+| target_year     | Year of interest                      | str ("2021")          | NA            | -            |
+| timeout         | Patience of system to not interrupt download | integer           | 1000          | > 1          |
 
 ### Download of reference ET from Arable user portal: DownloadET0fromArable
 If there is a user account for the Arable labs user portal is available and at least one Arable Mark 2 or Mark 3 station was installed on the AOI during the observed time span, ET0 data can also be downloaded from here. This is especially recommended, if the AOI is situated outside Germany and no data from German Weather Service is available. The module can also either be called by the main module (calc_wb) or can be called as stand-alone. Here, it needs 4 parameters to run (see Table 4).  A valid Arable user name (string) as well as the according password (string) is needed. Furthermore, a start date and an end date (format: “YYYY MM-DD” as string) need to be defined and a polygon shapefile containing the AOI boundaries needs to be included. Here, an API connection to the Arable user account is set up and the availability of data is requested. If more than one device is deployed, the mean ET0 from these devices for a day is calculated. After processing, the result is a .csv file, that contains two columns with date and according ET0.
 
 ### Table 3: Parameters to run “DownloadET0fromArable.R” to download reference evapotranspiration from Arable user portal, if Arable Mark 2 ground stations are installed on area of interest for the given timespan.
 
-Parameter      Description                         Data Format (or range)           Default value   Alternatives
-------------- ----------------------------------- ------------------------------- ---------------- ----------------
-user_name      Your user name for Arable account   str                             NA               -
-pwd            Your password for Arable account    str                             NA               -
-start_date     Date of first day of interest       str (e.g. "2021-01-01")         NA               -
-end_date       Date of last day of interest        str (e.g. "2021-12-31")         NA               -
-Shape_site     Boundaries of AOI                   shapefile                       NA               -
-
+| Parameter  | Description                     | Data Format (or range)     | Default value | Alternatives |
+|------------|---------------------------------|---------------------------|---------------|--------------|
+| user_name  | Your user name for Arable account | str                       | NA            | -            |
+| pwd        | Your password for Arable account | str                       | NA            | -            |
+| start_date | Date of first day of interest    | str (e.g. "2021-01-01")   | NA            | -            |
+| end_date   | Date of last day of interest     | str (e.g. "2021-12-31")   | NA            | -            |
+| Shape_site | Boundaries of AOI                | shapefile                 | NA            | -            |
 
 ### Download of precipitation data from DWD: DownloadRadolanfromDWD
 Precipitation data can be downloaded using the module DownloadRadolanfromDWD either by calling the module DownloadRadolanfromDWD from calc_wb or as stand-alone module. Here, a target path needs to be defined (string), where there the data shall be saved, and a target site should be loaded as a polygon shapefile containing the boundaries of the AOI. Furthermore, a start date and an end date (format: “YYYY MM-DD” as string) need to be defined as a time span (see Table 5). Depending on it is either recent or historical data, they are downloaded from the German Weather Service (DWD) CDC open data portal (https://opendata.dwd.de/climate_environment/CDC/grids_germany/daily/radolan/) as .tar.gz files and reprojected to the given polygon shapefiles projection. The result is saved as a a shapefile containing the precipitation data according and cropped to the AOI. Any other downloaded files are only temporarily saved and are getting removed after successful calculation.
 
 ### Table 4: Parameters to run “DownloadRadolanfromDWD.R” to download precipitation data from German Weather Service (DWD) for the given site and timespan.
 
-Parameter     Description                              Data Format (or range)        Default value   Alternatives
-------------  ----------------------------------------  ---------------------------  --------------  --------------
-target_path   Target path of processed reference ET     str                          NA              -
-target_site   Boundaries of AOI                         shapefile                    NA              -
-start_date    Date of first day of interest             str (e.g. "2021-01-01")      NA              -
-end_date      Date of last day of interest              str (e.g. "2021-12-31")      NA              -
+| Parameter   | Description                        | Data Format (or range)      | Default value | Alternatives |
+|-------------|----------------------------------|----------------------------|---------------|--------------|
+| target_path | Target path of processed reference ET | str                      | NA            | -            |
+| target_site | Boundaries of AOI                | shapefile                  | NA            | -            |
+| start_date  | Date of first day of interest    | str (e.g. "2021-01-01")    | NA            | -            |
+| end_date    | Date of last day of interest     | str (e.g. "2021-12-31")    | NA            | -            |
 
 ### Download of Sentinel-2 satellite data: DownloadSentinel2
 Next to either DJI Phantom 4 Multispectral UAV data and PlanetScope satellite imagery, also Sentinel-2 satellite imagery can be a basis for NDVI input data. In contrast to the other two sources, which must either be created by flying or purchased, the package contains a module here that allows the user to directly download freely available satellite Sentinel-2 L2A data from OpenEO Web Editor (https://openeo.dataspace.copernicus.eu). This module is not directly connected to the main module (calc_wb) and needs to be run separately given certain parameters (see Table 6). For this, a target path (string) needs to be defined first, where the downloaded files will be stored. Additionally, a polygon shapefile containing the boundaries of the AOI must be provided, and the start and end dates of the desired time period must be specified, each as “YYYY-MM-DD” (string). To enhance the number of results in the chart, the limiter should be kept at 1000 (default, integer). Besides, the maximum cloud coverage needs to be defined in percent (integer, default = 10). To run the script, an account at https://dataspace.copernicus.eu needs to be registered, since the connection is secured. Here, every time, a connection is started, the site is loaded in your internet browser, where you need to log in and verify the download. Depending on the amount of requested data, it can last some minutes, until the batch job finishes computing and the download starts. Here, every ten seconds a new download is requested until the download is completed. The downloaded files are saved in the target folder and already named to fit the requirements of the main module (calc_wb).
 
-Table 5: Parameters to run “DownloadSentinel2.R” to download Sentinel-2 imagery from Copernicus for the given site and timespan.
+### Table 5: Parameters to run “DownloadSentinel2.R” to download Sentinel-2 imagery from Copernicus for the given site and timespan.
 
-Parameter     Description                                      Data Format (or range)         Default Value   Alternatives
-------------  -----------------------------------------------  -----------------------------  --------------  -------------
-target_path   Target path of downloaded Sentinel-2 data        str                            NA              -
-shape_site    Path to boundaries of AOI                        str                            NA              -
-start_date    Date of first day of interest                    str (e.g. "2021-01-01")        NA              -
-end_date      Date of last day of interest                     str (e.g. "2021-12-31")        NA              -
-limit         Limit of results in chart                        integer                        1000            > 1
-cloudcover    Percent of maximum cloud coverage on image       integer                        10              > 0
+| Parameter   | Description                                   | Data Format (or range)         | Default Value | Alternatives |
+|-------------|-----------------------------------------------|-------------------------------|---------------|--------------|
+| target_path | Target path of downloaded Sentinel-2 data     | str                           | NA            | -            |
+| shape_site  | Path to boundaries of AOI                      | str                           | NA            | -            |
+| start_date  | Date of first day of interest                  | str (e.g. "2021-01-01")       | NA            | -            |
+| end_date    | Date of last day of interest                   | str (e.g. "2021-12-31")       | NA            | -            |
+| limit       | Limit of results in chart                       | integer                       | 1000          | > 1          |
+| cloudcover  | Percent of maximum cloud coverage on image    | integer                       | 10            | > 0          |
 
 ### Downloading Raindancer irrigation data: DownloadRaindancer
 The package provides support for irrigation data, that can either be included as a shapefile or be downloaded from Raindancer user portal, if there is a working user account. If provided as a shapefile, the shapefile needs to contain one or more features with irrigation amounts per day, while the column containing irrigation amount needs to be named as “Brg_GPS” (irrigation height in mm, float) and the column containing the according day needs to be named as “DOY” (day of year, integer). If a Raindancer user account is used, the module DownloadRaindancer can automatically scrape the data from the website by downloading all available protocols as .xlsx files, when given certain parameters (see Table 7). It is necessary to have Java and Firefox internet browser installed on the machine. Here, the last 10.000 logs, i.e. roughly the last 12 days of sprinkler action are downloaded. This means, the download should be regularly repeated within a maximum of 12 days during vegetation period to avoid any data gaps. As source path the standard Firefox download path is used (“sourcepath”, string), which can be looked up in the Firefox browser. The downloaded files are copied to a target path (“targetpath”, string), were there are stored in an automatically created sub folder named after download date and time. Furthermore, the client ID (“client”, string), user name (“user”, string) and password (“pass”, string) for a working Raindancer user account need to be given. With “waitfor” a variable containing a waiting time (seconds, integer) needs to be defined, since it is the time, the machine waits for the webpage to be updated. This means, the slower the internet connection, the longer should be the time to wait (default is 3 seconds). The variable “nozzle_diameter” (string) contains the diameter [mm] of the Nelson SR50 nozzle, that is mounted on the sprinkler canon (default “25_4”, i.e. 25.4 mm). When running this module, the module DownloadRaindancerCombineCharts is automatically started in a last step (see section g). 
 
-Table 6: Parameters to run “DownloadRaindancer.R” to download irrigation data from Raindancer user portal for all sites and the last 12 days of running the script.
+### Table 6: Parameters to run “DownloadRaindancer.R” to download irrigation data from Raindancer user portal for all sites and the last 12 days of running the script.
 
-Parameter         Description                                                      Data Format (or range)     Default Value   Alternatives
-----------------  ----------------------------------------------------------------  --------------------------  --------------  -------------------------------
-sourcepath        Path to raw data (your standard download path of Firefox)        str                        NA              -
-targetpath        Target path of downloaded files                                  str                        NA              -
-client            Your client number for Raindancer                                str                        NA              -
-user              Your user name for Raindancer                                    str                        NA              -
-pass              Your password for Raindancer                                     str                        NA              -
-port              Port to use for download                                         int                        4486L           -
-waitfor           Waiting time [s] for browser and downloads between clicks        integer                    3               > 0
-nozzle_diameter   Diameter of sprinkler nozzle [mm]                                str                        "25_4"          "17_8", "20_3", "22_9", "27_9","30.4", "33_0"
-target_crs        CRS given to module “DownloadRaindancerCombineCharts.R”          int                        32633           -
+| Parameter        | Description                                                   | Data Format (or range)          | Default Value | Alternatives                                         |
+|------------------|---------------------------------------------------------------|--------------------------------|---------------|-----------------------------------------------------|
+| sourcepath       | Path to raw data (your standard download path of Firefox)     | str                            | NA            | -                                                   |
+| targetpath       | Target path of downloaded files                                | str                            | NA            | -                                                   |
+| client           | Your client number for Raindancer                              | str                            | NA            | -                                                   |
+| user             | Your user name for Raindancer                                  | str                            | NA            | -                                                   |
+| pass             | Your password for Raindancer                                   | str                            | NA            | -                                                   |
+| port             | Port to use for download                                       | int                            | 4486L         | -                                                   |
+| waitfor          | Waiting time [s] for browser and downloads between clicks     | integer                        | 3             | > 0                                                 |
+| nozzle_diameter  | Diameter of sprinkler nozzle [mm]                             | str                            | "25_4"        | "17_8", "20_3", "22_9", "27_9", "30.4", "33_0"      |
+| target_crs       | CRS given to module “DownloadRaindancerCombineCharts.R”       | int                            | 32633         | -                                                   |
 
 ### Processing downloaded Raindancer irrigation data: DownloadRaindancerCombineCharts
 After the irrigation protocol files were downloaded from Raindancer user portal (see section f), they need to be pasted to one single file with no overlapping data and only containing true irrigation actions as well as corrected and transformed to shapefile format. This is processed within the the module DownloadRaindancerCombineCharts given certain parameters (see Table 8). The module needs a source path (“sourcepath”, string), containing the downloaded .xlsx files, which is qual to the target path of the module DownloadRaindancer. However, also here a target path (“targetpath”, string) is required, where there the shapefiles containing the irrigation amounts are saved. Both of the target paths may not be equal. A start date (“startdate”, string) may be defined as the first date, that is taken into account. If left empty, the 1st January of the recent year is defined as base. According to DownloadRaindancer module, here also a sprinkler radius in meters is necessary to be defined (“buffer_dist”, string, default is 36).  During processing, missing values are interpolated and a correction of coordinates to avoid natural GNSS-bias as well as an outlier correction are performed. As results two shapefiles are saved: one containing the uncorrected, original data, including all status updates like non-irrigation events and errors, and the other one containing the corrected and interpolated data, only regarding active irrigation events. Besides, results according to single sites are saved as an .RData file.
 
-Table 7: Parameters to run “DownloadRaindancerCombineCharts.R” to paste and process downloaded Raindancer irrigation .xlsx files data to .shp files.
+### Table 7: Parameters to run “DownloadRaindancerCombineCharts.R” to paste and process downloaded Raindancer irrigation .xlsx files data to .shp files.
 
-Parameter         Description                                          Data Format (or range)       Default Value             Alternatives
-----------------  ---------------------------------------------------  ---------------------------  ------------------------  --------------------------------------
-sourcepath        Path to downloaded files                             str                          NA                       -
-targetpath        Target path of processed irrigation buffers          str                          NA                       -
-startdate         Date of irrigation event                             str                          "[recent year]-01-01"    Date formatted as "YYYY-MM-DD"
-nozzle_diameter   Diameter of sprinkler nozzle [mm]                    str                          "25_4"                   "17_8", "20_3", "22_9", "25_4", 
-                                                                                                                           "27_9", "30.4", "33_0"
-target_crs        CRS of resulting shapefiles                          int                          32633                    -
+| Parameter       | Description                                 | Data Format (or range)           | Default Value          | Alternatives                                      |
+|-----------------|---------------------------------------------|---------------------------------|------------------------|--------------------------------------------------|
+| sourcepath      | Path to downloaded files                     | str                             | NA                     | -                                                |
+| targetpath      | Target path of processed irrigation buffers | str                             | NA                     | -                                                |
+| startdate       | Date of irrigation event                      | str                             | "[recent year]-01-01"  | Date formatted as "YYYY-MM-DD"                    |
+| nozzle_diameter | Diameter of sprinkler nozzle [mm]             | str                             | "25_4"                 | "17_8", "20_3", "22_9", "25_4", "27_9", "30.4", "33_0" |
+| target_crs      | CRS of resulting shapefiles                   | int                             | 32633                  | -                                                |
 
 ### Print final results as graphics: calcWBplots
 Module calc_WB precedes module calcWBplots. Within Module calc_WB, all results are stored in the form of Shapefiles and/or GeoTIFFs, as well as in .RData format. These outputs are comprehensive and intended for further geospatial processing or in-depth scientific analysis. For an initial visual and interpretative overview, Module calcWBplots offers a suitable approach by generating daily composite maps throughout the vegetation period (see fig. 2). These maps include spatial distributions of NDVI, crop coefficient (Kc), crop evapotranspiration (ETc), precipitation, irrigation, and the final water balance. Furthermore, an optional input Shapefile containing up to five polygons can be provided. For each polygon, the respective mean values are visualized in detail over the course of the vegetation period. In addition to serving as a quick reference, this compilation also provides added value for end users requiring an accessible summary of key indicators. Parameters needed are “source_path” (string), related to the .RData file, that was created by calc_WB and stores the results from water balance calculations, the “plant_doy” (integer), which is the day of year, when potatoes were planted, the polygons for special POIs on the site (“buffer_20”, string) and the path to shapefile (string) containing boundaries of the AOI. First, mean values of given POIs are calculated for each day and saved as .RData file named after .RData file, that was created by module calc_wb, followed by “mean_data_charts”, e.g. “WBR_radolan_poly_1_132_5_mean_data_charts.RData”. In a second step, the single figures regarding the attributes are created and ordered as ensembles, that are saved as one .png file per day in the created folder “wallpapers”.
 
-Table 7: Parameters to run “calcWBplots.R” to plot all the results from calcWB.R in one concise figure containing also certain POIs.
+### Table 8: Parameters to run “calcWBplots.R” to plot all the results from calcWB.R in one concise figure containing also certain POIs.
 
-Parameter       Description                                          Data Format (or range)   Default Value   Alternatives
---------------  ---------------------------------------------------  ------------------------  --------------  ------------
-source_path     Path to resulting .RData file from calc_WB.R         str                      NA              -
-plant_doy       Day of year, when potatoes were planted              int                      NA              -
-buffer_20       Path to shapefile containing polygons of POIs        str                      NA              -
-shape_site      Path to boundaries of AOI                            str                      NA              -
+| Parameter   | Description                                       | Data Format (or range) | Default Value | Alternatives |
+|-------------|-------------------------------------------------|-----------------------|---------------|--------------|
+| source_path | Path to resulting .RData file from calc_WB.R    | str                   | NA            | -            |
+| plant_doy   | Day of year, when potatoes were planted          | int                   | NA            | -            |
+| buffer_20   | Path to shapefile containing polygons of POIs    | str                   | NA            | -            |
+| shape_site  | Path to boundaries of AOI                         | str                   | NA            | -            |
+
 
 
 
