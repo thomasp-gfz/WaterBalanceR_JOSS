@@ -96,7 +96,13 @@ Satellite or UAV imagery allows full-field observations, which can resolve this 
 - compatibility with other irrigation data (if available as shapefile)
 - Optional download of Sentinel-2 imagery (requires user account)
 
-![Daily and cumulative maps and time series of NDVI, crop coefficient (Kc), precipitation, irrigation, evapotranspiration (ETc), and water balance for starch potatoes at DOY 182 (73 days after planting). Left: Spatial distribution of variables across the study site. Middle: Time series of key indicators for four selected sample plots. Right: Cumulative values until DOY 182, visualized both spatially and per plot. This figure demonstrates intra-field variability and highlights site-specific irrigation demand and crop water dynamics for precision irrigation management.\label{figure_1}](figure_1.png)
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{figure_1.png}
+  \caption{Daily and cumulative maps and time series of NDVI, crop coefficient (Kc), precipitation, irrigation, evapotranspiration (ETc), and water balance for starch potatoes at DOY 182 (73 days after planting). Left: Spatial distribution of variables across the study site. Middle: Time series of key indicators for four selected sample plots. Right: Cumulative values until DOY 182, visualized both spatially and per plot. This figure demonstrates intra-field variability and highlights site-specific irrigation demand and crop water dynamics for precision irrigation management.}
+  \label{fig:figure_1}
+\end{figure}
+
 
 # Modules, Routine, and Process Chain
 
@@ -112,7 +118,12 @@ Irrigation data can be downloaded and processed using the `DownloadRaindancer` m
 
 After preprocessing steps such as resampling, co-registration, correction, and interpolation, the results can be saved as shapefiles, GeoTIFFs or `.RData` files. The `.RData` outputs can be passed to the `calcWBplots` module to generate `.png` visualizations showing intra-site water balance dynamics across the growing season. Optionally, a shapefile of points of interest (POIs) can be included to enable detailed temporal analysis at specific field locations.
 
-![Workflow of the WaterBalanceR package showing the integration of remote sensing data (Sentinel-2, PlanetScope, and DJI Phantom 4 Multispectral UAV), meteorological data (from German Weather Service, Arable Mark 2 Ground stations or Raindancer) and irrigation information. The main module handles data download, pre-processing, model-based calculation of daily crop evapotranspiration and water balance, and output generation for decision support. Color-coded elements indicate manual and automatic input, processing steps, and output formats.\label{figure_2}](figure_2.png)
+\begin{figure}[htbp]
+  \centering
+  \includegraphics[width=\textwidth]{figure_2.png}
+  \caption{Workflow of the WaterBalanceR package showing the integration of remote sensing data (Sentinel-2, PlanetScope, and DJI Phantom 4 Multispectral UAV), meteorological data (from German Weather Service, Arable Mark 2 Ground stations or Raindancer) and irrigation information. The main module handles data download, pre-processing, model-based calculation of daily crop evapotranspiration and water balance, and output generation for decision support. Color-coded elements indicate manual and automatic input, processing steps, and output formats.}
+  \label{fig:figure_2}
+\end{figure}
 
 # Quality Control and Sample Data
 
@@ -145,6 +156,7 @@ We would like to thank **Arable Labs, Inc.** for providing several Arable Mark 2
 This work was funded by the **German Federal Ministry of Food and Agriculture** (based on a decision by the German Bundestag) under project numbers FKZ 28DE114A18 and FKZ 28DE114A22 within the scope of the **AgriSens-DEMMIN 4.0** project.
 
 # References
+
 
 
 
