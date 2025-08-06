@@ -40,7 +40,7 @@ bibliography: paper.bib
 
 # Summary
 
-**WaterBalanceR** is an R package developed within the BMEL-funded project *AgriSens-DEMMIN 4.0* [@GFZ:2021] and is distributed under the AGPL-3.0-only license. It enables the calculation of spatially distributed, daily water balance maps for starch potatoes at a precision farming scale. This is achieved by combining NDVI data derived from multispectral UAV DJI Phantom 4M, PlanetScope or Sentinel-2 imagery with freely available meteorological data and reference evapotranspiration from the German Weather Service (DWD) [@DWD1:2023], using the FAO56 Penman-Monteith method [@Allen.:1998] along with specified or downloaded irrigation amounts.
+**WaterBalanceR** is an R package developed within the BMEL-funded project *AgriSens-DEMMIN 4.0* [@GFZ:2021] and is distributed under the AGPL-3.0-only license. It enables the calculation of spatially distributed, daily water balance maps for starch potatoes at a precision farming scale. This is achieved by combining NDVI data derived from multispectral UAV DJI Phantom 4M, PlanetScope or Sentinel-2 imagery with freely available meteorological data and reference evapotranspiration from the German Weather Service (DWD) [@DWD1:2023], using the FAO56 Penman-Monteith method [@Allen:1998] along with specified or downloaded irrigation amounts.
 
 Although originally based on a three-year time series of experiments conducted in the DEMMIN area in northeastern Germany [@Heinrich:2021], the package is applicable across Germany and potentially worldwide. Its modular structure allows for easy extension to other crops. The related experiments and resulted models are currently being published in the open-access journal *Remote Sensing* (MDPI). Results can be exported as shapefiles (`.shp`) for further analysis or as PNGs (`.png`) for quick visual inspection, making it a reproducible and practical tool for researchers and practitioners in precision agriculture.
 
@@ -145,5 +145,6 @@ We would like to thank **Arable Labs, Inc.** for providing several Arable Mark 2
 This work was funded by the **German Federal Ministry of Food and Agriculture** (based on a decision by the German Bundestag) under project numbers FKZ 28DE114A18 and FKZ 28DE114A22 within the scope of the **AgriSens-DEMMIN 4.0** project.
 
 # References
+
 
 
