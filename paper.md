@@ -34,7 +34,7 @@ affiliations:
  - name: Martin-Luther-University, 06108 Halle-Wittenberg, Germany
    index: 2
    ror: 05gqaka33
-date: 31 July 2025
+date: 06 August 2025
 bibliography: paper.bib
 ---
 
@@ -144,7 +144,6 @@ We would like to thank **Arable Labs, Inc.** for providing several Arable Mark 2
 
 This work was funded by the **German Federal Ministry of Food and Agriculture** (based on a decision by the German Bundestag) under project numbers FKZ 28DE114A18 and FKZ 28DE114A22 within the scope of the **AgriSens-DEMMIN 4.0** project.
 
----
-
 # References
 references.bib
+
