@@ -40,15 +40,15 @@ bibliography: paper.bib
 
 # Summary
 
-**WaterBalanceR** is an R package developed within the BMEL-funded project *AgriSens-DEMMIN 4.0* [@GFZ:2021] and is distributed under the AGPL-3.0-only license. It enables the calculation of spatially distributed, daily water balance maps for starch potatoes at a precision farming scale. This is achieved by combining NDVI data derived from multispectral UAV DJI Phantom 4M, PlanetScope or Sentinel-2 imagery with freely available meteorological data and reference evapotranspiration from the German Weather Service (DWD) [@DWD1:2023], using the FAO56 Penman-Monteith method [@Allen:1998] along with specified or downloaded irrigation amounts.
+**WaterBalanceR** is an R package developed within the BMEL-funded project *AgriSens-DEMMIN 4.0* [@GFZ:2021] and is distributed under the AGPL-3.0-only license. It enables the calculation of spatially distributed, daily water balance maps for starch potatoes at a precision farming scale. This is achieved by combining NDVI data derived from multispectral UAV DJI Phantom 4M, PlanetScope or Sentinel-2 imagery with freely available meteorological data and reference evapotranspiration from the German Weather Service (DWD) [@DWD:2023], using the FAO56 Penman-Monteith method [@Allen:1998] along with specified or downloaded irrigation amounts.
 
-Although originally based on a three-year time series of experiments conducted in the DEMMIN area in northeastern Germany [@Heinrich:2021], the package is applicable across Germany and potentially worldwide. Its modular structure allows for easy extension to other crops. The related experiments and resulted models are currently being published in the open-access journal *Remote Sensing* (MDPI). Results can be exported as shapefiles (`.shp`) for further analysis or as PNGs (`.png`) for quick visual inspection, making it a reproducible and practical tool for researchers and practitioners in precision agriculture.
+Although originally based on a three-year time series of experiments conducted in the DEMMIN area in northeastern Germany [@Heinrich:2018], the package is applicable across Germany and potentially worldwide. Its modular structure allows for easy extension to other crops. The related experiments and resulted models are currently being published in the open-access journal *Remote Sensing* (MDPI). Results can be exported as shapefiles (`.shp`) for further analysis or as PNGs (`.png`) for quick visual inspection, making it a reproducible and practical tool for researchers and practitioners in precision agriculture.
 
 # Statement of Need
 
 Efficient water management is crucial in agriculture, especially under increasing climatic uncertainty and water scarcity. Potato cultivation in Germany requires significant supplemental irrigation, and from an economic pont of view, irrigated potatoes currently yield the highest additional returns among arable crops due to both increased yields and high market prices [@Bernhardt:2025; @Lüttger:2005; @Pfleger:2010; @Fricke:2022].
 
-The amount of supplemental water needed is highly intra site-specific. Farmers may over- or underestimate crop water demand, creating potential for optimization at the precision farming level [@Wenzel:2022; @Lakhiar:2024; @Delgado:2019; @Cecilia:2019]. **WaterBalanceR** addresses this gap by offering a high-resolution, data-driven decision support tool for intra site-specific irrigation planning, i.e. giving as much water as necessary to cover the plants needs, but as less as possible to avoid any water waste.
+The amount of supplemental water needed is highly intra site-specific. Farmers may over- or underestimate crop water demand, creating potential for optimization at the precision farming level [@Wenzel:2022; @Lakhiar:2024; @Delgado:2019; @Cecilia:2022]. **WaterBalanceR** addresses this gap by offering a high-resolution, data-driven decision support tool for intra site-specific irrigation planning, i.e. giving as much water as necessary to cover the plants needs, but as less as possible to avoid any water waste.
 
 By leveraging NDVI data from UAVs and satellites, the package calculates daily water balances at a default spatial resolution of 5 meters. This granularity enables precise irrigation targeting, which can improve yields while conserving water. Although initially developed for DEMMIN, the package is applicable throughout Germany using nationwide available datasets, and (with further validation) globally. Its spatial resolution of up to 3 meters allows optimization of both sprinkler and drip irrigation systems.
 
@@ -56,11 +56,11 @@ Due to its modular architecture, the tool can be easily adapted to other crops i
 
 # Comparison to Existing Software
 
-There are already several software solutions that support irrigation decision-making in agriculture. In Germany, public and freely available tools include:
+There are already several software solutions that support irrigation decision-making in agriculture. In Germany, public and partly freely available tools include:
 
 - **AMBAV** [@Löpmeier:1983]
-- **ISABEL** [@DWD2:2025]
-- **Agrowetter Beregnung** (based on the Geisenheimer method) [@DWD3:2025]
+- **ISABEL** [@DWD:2018]
+- **Agrowetter Beregnung** (based on the Geisenheimer method, not freely available) [@DWD:2004]
 
 These services are provided by the German Weather Service (DWD). Commercial offerings include:
 
@@ -145,6 +145,7 @@ We would like to thank **Arable Labs, Inc.** for providing several Arable Mark 2
 This work was funded by the **German Federal Ministry of Food and Agriculture** (based on a decision by the German Bundestag) under project numbers FKZ 28DE114A18 and FKZ 28DE114A22 within the scope of the **AgriSens-DEMMIN 4.0** project.
 
 # References
+
 
 
 
