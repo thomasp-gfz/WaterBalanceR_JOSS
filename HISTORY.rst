@@ -2,6 +2,13 @@
 History
 =======
 
+0.1.15 (2025-08-06)
+------------------
+
+General settings:
+* Revised README.md
+* Add Citation.cff
+
 0.1.14 (2025-08-04)
 ------------------
 
