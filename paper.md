@@ -84,7 +84,7 @@ Satellite or UAV imagery allows full-field observations, which can resolve this 
 
 **WaterBalanceR** provides the following core functionalities:
 
-- Calculation of crop coefficient, crop evapotranspiration (ETc), and daily water balance for starch potatoes using NDVI data and FAO56 Penman-Monteith-based ET₀ from DWD \autoref{fig:Figure 1}
+- Calculation of crop coefficient, crop evapotranspiration (ETc), and daily water balance for starch potatoes using NDVI data and FAO56 Penman-Monteith-based ET₀ from DWD \autoref{fig:figure_1}
 - Output of water balance and further results as shapefiles (`.shp`) and/or PNGs (`.png`) at a precision farming scale
 - Processing of NDVI data from DJI Phantom 4 Multispectral, PlanetScope or Sentinel-2 — freely mixable as input
 - Autonomous download and processing of precipitation data:
@@ -100,7 +100,7 @@ Satellite or UAV imagery allows full-field observations, which can resolve this 
 
 # Modules, Routine, and Process Chain
 
-**WaterBalanceR** is composed of eight modular scripts that can be run individually or in sequence using the configuration script `run_calcWB.R` \autoref{fig:Figure 2} to calculate and visualize the water balance. Each module corresponds to an R script and function of the same name.
+**WaterBalanceR** is composed of eight modular scripts that can be run individually or in sequence using the configuration script `run_calcWB.R` \autoref{fig:figure_2} to calculate and visualize the water balance. Each module corresponds to an R script and function of the same name.
 
 The process chain is initiated through the configuration module `run_calcWB`, which initiates the core module `calc_wb`. This module performs the main processing tasks:
 
@@ -145,6 +145,7 @@ We would like to thank **Arable Labs, Inc.** for providing several Arable Mark 2
 This work was funded by the **German Federal Ministry of Food and Agriculture** (based on a decision by the German Bundestag) under project numbers FKZ 28DE114A18 and FKZ 28DE114A22 within the scope of the **AgriSens-DEMMIN 4.0** project.
 
 # References
+
 
 
 
